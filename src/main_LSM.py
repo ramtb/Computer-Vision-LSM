@@ -47,6 +47,12 @@ predicted_face = False
 #########* CONFIGURAR GUI ###########
 
 app = QApplication(sys.argv)
+
+with open("C://Users//arhui//Documents//projects//keet//src//style.qss", "r") as qss_file:
+    qss_style = qss_file.read()
+
+app.setStyleSheet(qss_style)
+
 gui = GUI()
 gui.show()
 
@@ -180,7 +186,7 @@ while app_running:
             if n_letters > 0:
                 bvs.sintetizar_emocion('emocion=alegria', texto = phrase )
                 completed_translations.append(phrase)  # Añadir la traducción completada a la lista
-                gui.update_text('Esperando predicciones...', completed_translations[-1])  # Ac
+                gui.update_text('Esperando ...', completed_translations[-1])  # Ac
                 predicted = False
                 n_letters = 0
         start_time = current_time    

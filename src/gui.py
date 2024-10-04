@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QLabel, 
                                QScrollArea, QGraphicsView, QGraphicsScene, QGraphicsEllipseItem,
-                               QPushButton, QSpacerItem, QSizePolicy
+                               QPushButton, QSpacerItem, QSizePolicy, QGroupBox
                                )
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QColor, QPixmap, QPainter
@@ -20,7 +20,21 @@ class GUI(QWidget):
     def initUI(self):
         # Configurar la ventana principal
         self.setWindowTitle('Keet: Rompiedo barreras del silencio')
-        self.setGeometry(100, 100, 800, 600)
+            # Obtener el tamaño de la pantalla
+        screen_geometry = QApplication.primaryScreen().availableGeometry()
+        screen_width = screen_geometry.width()
+        screen_height = screen_geometry.height()
+
+        # Definir el tamaño de la ventana
+        window_width = 420
+        window_height = 600
+
+        # Calcular la posición para que la ventana se alinee al lado derecho
+        x_position = screen_width - window_width
+        y_position = (screen_height - window_height) // 2  # Centrar verticalmente
+
+        # Establecer geometría de la ventana
+        self.setGeometry(x_position, y_position, window_width, window_height)
         
         # Crear layout
         main_layout = QVBoxLayout()
@@ -60,25 +74,40 @@ class GUI(QWidget):
         main_layout.addItem(QSpacerItem(20, 20))
 
         # Crear área de historial
+        # Crear un QGroupBox para el historial
+        history_group_box = QGroupBox("Historial de traducciones", self)
+
+        # Crear un layout para el contenido del QGroupBox
+        history_layout = QVBoxLayout()
+
         self.history_area = QLabel('', self)
         self.history_area.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.history_area.setStyleSheet("font-size: 15px; ")
         self.history_area.setWordWrap(True)
+        self.history_area.setFixedHeight(100)
 
         # Crear un QScrollArea para el historial
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(self.history_area)
-        scroll_area.setMaximumHeight(100)  # Ajusta esto según tus necesidades
-        main_layout.addWidget(scroll_area)
+        scroll_area.setMaximumHeight(100) 
+
+        # Añadir el QScrollArea al layout del QGroupBox
+        history_layout.addWidget(scroll_area)
+
+        # Asignar el layout al QGroupBox
+        history_group_box.setLayout(history_layout)
+
+        # Añadir el QGroupBox al layout principal
+        main_layout.addWidget(history_group_box)
 
         # Añadir un espaciador vertical entre historial y h_layout
         main_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         # Crear display de texto principal
-        self.main_label = QLabel('Esperando predicciones...', self)
+        self.main_label = QLabel('Esperando ...', self)
         self.main_label.setAlignment(Qt.AlignCenter)
-        self.main_label.setStyleSheet("font-size: 35px; background-color: lightblue;")
+        self.main_label.setStyleSheet("font-size: 35px; ")
 
         # Configurar una fuente que soporte emojis
         font = QFont("Segoe UI Emoji", 24)
@@ -162,6 +191,9 @@ class GUI(QWidget):
 
 if __name__ == "__main__":
     app = QApplication([])
+    with open("style.qss", "r") as qss_file:
+        qss_style = qss_file.read()
+    app.setStyleSheet(qss_style)
     gui = GUI()
     gui.show()
     app.exec()

@@ -1,0 +1,71 @@
+QWidget {
+    background-color: #F5F5F5;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333333;
+}
+
+QLabel {
+    font-size: 16px;
+    color: #333333;
+}
+
+QGroupBox {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    color: #666666;
+}
+
+QPushButton {
+    background-color: #FFFFFF;
+    border: 2px solid #FFA500;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+    color: #333333;
+}
+
+QPushButton:hover {
+    background-color: #FFA500;
+    color: #FFFFFF;
+}
+
+QPushButton:pressed {
+    background-color: #FF8C00;
+    color: #FFFFFF;
+}
+
+QPushButton#close_app_button {
+    background-color: #FF6347;
+    border: 2px solid #FF4500;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+    color: #FFFFFF;
+}
+
+QPushButton#close_app_button:hover {
+    background-color: #FF4500;
+    color: #FFFFFF;
+}
+
+QPushButton#close_app_button:pressed {
+    background-color: #FF0000;
+    color: #FFFFFF;
+}
+
+QScrollArea {
+    border: none;
+}
+
+QGraphicsView {
+    border: 2px solid #FFA500;
+    border-radius: 15px;
+}
+
+QVBoxLayout, QHBoxLayout {
+    margin: 5px;
+    spacing: 10px;
+}
