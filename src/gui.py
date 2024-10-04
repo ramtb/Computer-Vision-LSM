@@ -1,9 +1,13 @@
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, QLabel, 
                                QScrollArea, QGraphicsView, QGraphicsScene, QGraphicsEllipseItem,
-                               QPushButton
+                               QPushButton, QSpacerItem, QSizePolicy
                                )
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QFont, QColor, QPixmap, QPainter
+from PySide6.QtSvg import QSvgRenderer
+
+### Path images ###
+path_images = "C://Users//arhui//Documents//projects//keet//src//images"
 
 
 class GUI(QWidget):
@@ -15,16 +19,50 @@ class GUI(QWidget):
 
     def initUI(self):
         # Configurar la ventana principal
-        self.setWindowTitle('Reconocimiento de Gestos')
+        self.setWindowTitle('Keet: Rompiedo barreras del silencio')
         self.setGeometry(100, 100, 800, 600)
         
         # Crear layout
         main_layout = QVBoxLayout()
 
+        # --- Agregar logos ---
+        logo_layout = QHBoxLayout()
+
+        left_spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        # Crear los QLabel para los logos
+        logo1_label = QLabel(self)
+        logo2_label = QLabel(self)
+        logo3_label = QLabel(self)
+
+        # Modificar el tamaño de las imágenes
+        self.load_svg_to_label(f"{path_images}//SEKKAN_slogan_naranja.svg", logo1_label, 205, 95)  # Tamaño reducido
+        self.load_svg_to_label(f"{path_images}//UNAM_negro.svg", logo2_label, 70, 87)
+        self.load_svg_to_label(f"{path_images}//Ciencias_negro.svg", logo3_label, 73, 95)
+
+        right_spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        # Ajustar márgenes y espaciamiento
+        logo_layout.setContentsMargins(0, 0, 0, 0)  # Sin márgenes
+        logo_layout.setSpacing(20)  # Espacio reducido
+
+        # Añadir los QLabel al layout horizontal
+        logo_layout.addItem(left_spacer)
+        logo_layout.addWidget(logo1_label)
+        logo_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        logo_layout.addWidget(logo2_label)
+        logo_layout.addWidget(logo3_label)
+        logo_layout.addItem(right_spacer)
+
+        # Añadir el layout de logos al layout principal (una pequeña parte de la ventana)
+        main_layout.addLayout(logo_layout)
+
+        main_layout.addItem(QSpacerItem(20, 20))
+
         # Crear área de historial
         self.history_area = QLabel('', self)
         self.history_area.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.history_area.setStyleSheet("font-size: 15px;")
+        self.history_area.setStyleSheet("font-size: 15px; ")
         self.history_area.setWordWrap(True)
 
         # Crear un QScrollArea para el historial
@@ -34,10 +72,13 @@ class GUI(QWidget):
         scroll_area.setMaximumHeight(100)  # Ajusta esto según tus necesidades
         main_layout.addWidget(scroll_area)
 
+        # Añadir un espaciador vertical entre historial y h_layout
+        main_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
         # Crear display de texto principal
         self.main_label = QLabel('Esperando predicciones...', self)
         self.main_label.setAlignment(Qt.AlignCenter)
-        self.main_label.setStyleSheet("font-size: 35px;")
+        self.main_label.setStyleSheet("font-size: 35px; background-color: lightblue;")
 
         # Configurar una fuente que soporte emojis
         font = QFont("Segoe UI Emoji", 24)
@@ -48,7 +89,7 @@ class GUI(QWidget):
         self.led_scene = QGraphicsScene(self)
         self.led_view.setScene(self.led_scene)
         self.led_view.setFixedSize(30, 30)
-        self.led_item = QGraphicsEllipseItem(0, 0, 20, 20)
+        self.led_item = QGraphicsEllipseItem(0, 0, 25, 25)
         self.led_item.setBrush(QColor(200, 0, 0))  # Inicialmente rojo (apagado)
         self.led_scene.addItem(self.led_item)
 
@@ -59,6 +100,9 @@ class GUI(QWidget):
 
         # Añadir el layout horizontal al layout principal
         main_layout.addLayout(h_layout)
+
+        # Añadir otro espaciador vertical entre h_layout y los botones
+        main_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         # Crear botones
         button_layout = QHBoxLayout()
@@ -76,6 +120,20 @@ class GUI(QWidget):
 
         # Establecer layout
         self.setLayout(main_layout)
+
+
+    def load_svg_to_label(self, svg_path, label, width, height):
+        """
+        Cargar un archivo SVG y renderizarlo dentro de un QLabel.
+        """
+        renderer = QSvgRenderer(svg_path)
+        pixmap = QPixmap(width, height)
+        pixmap.fill(Qt.transparent)  # Para fondo transparente
+        painter = QPainter(pixmap)
+        renderer.render(painter)
+        painter.end()
+        label.setPixmap(pixmap)
+
     def update_text(self, current_text, completed_text=None):
         """
         Actualiza el display de texto principal y el historial si se proporciona.
@@ -101,3 +159,9 @@ class GUI(QWidget):
         Limpia el historial de traducciones.
         """
         self.history_area.setText('')
+
+if __name__ == "__main__":
+    app = QApplication([])
+    gui = GUI()
+    gui.show()
+    app.exec()
