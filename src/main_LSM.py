@@ -8,7 +8,7 @@ import time
 import mediapipe as mp
 import basic_voice_system as bvs
 from PySide6.QtWidgets import QApplication
-from main import GUI
+from gui import GUI
 import sys
 import io
 
@@ -26,21 +26,21 @@ emotion_emojis = {
 
 
 ##########* LOAD THE MODEL ################################
-path_save = 'C://Users//arhui//Documents//projects//keet//Statics+Voice//all_statics_model.h5'
+path_save = 'C://Users//arhui//Documents//projects//keet//src//all_statics_model.h5'
 model = tf.keras.models.load_model(path_save)
-scaler = joblib.load('C://Users//arhui//Documents//projects//keet//Statics+Voice//scaler.pkl')
+scaler = joblib.load('C://Users//arhui//Documents//projects//keet//src//scaler.pkl')
 dict_labels = {0: 'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'L', 10:'M', 11:'N', 12:'O', 13:'P', 14:'R', 15:'S', 16:'T', 17:'U', 18:'V', 19:'W', 20:'Y'}
 start_time = time.time()
-delay_time = 1
+delay_time = 1.2
 predicted = False
 phrase = ''
 n_letters = 0
 
 #######* LOAD THE MODEL of faces ################################
 
-path_save_faces = 'C://Users//arhui//Documents//projects//keet//Statics+Voice//face_model.h5'
+path_save_faces = 'C://Users//arhui//Documents//projects//keet//src//face_model.h5'
 model_faces = tf.keras.models.load_model(path_save_faces)
-scaler_faces = joblib.load('C://Users//arhui//Documents//projects//keet//Statics+Voice//scaler_faces.pkl')
+scaler_faces = joblib.load('C://Users//arhui//Documents//projects//keet//src//scaler_faces.pkl')
 dict_labels_faces = {0: 'ENOJO', 1: 'FELIZ', 2: 'NEUTRAL', 3: 'SORPRESA', 4: 'TRISTE'}
 predicted_face = False
 
@@ -50,6 +50,14 @@ app = QApplication(sys.argv)
 gui = GUI()
 gui.show()
 
+def close_application():
+    global app_running
+    app_running = False
+    cap.release()
+    cv2.destroyAllWindows()
+    app.quit()
+
+gui.close_application.connect(close_application)
 
 #########* CAMERA SETTINGS ###########
 
@@ -81,9 +89,13 @@ face_mesh_images = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 
+############## PARAMETERS ################
+completed_translations = []
+app_running = True
 ###################* While loop for tracking    #################  
 
-while True:
+while app_running:
+    app.processEvents()
     
     current_time = time.time()
 
@@ -94,6 +106,7 @@ while True:
                                                     results= results, width= width, height= height, t= t,tiempo_de_espera= tiempo_de_espera
                                                     ,save_len = None,print_lm=False, size_roi = 0.087, point_save={})       
     
+    gui.update_led_status(flag == 1)
     ################* FACE MESH ############	
     face_mesh_results = face_mesh_images.process(frame)
     
@@ -166,6 +179,8 @@ while True:
         else:
             if n_letters > 0:
                 bvs.sintetizar_emocion('emocion=alegria', texto = phrase )
+                completed_translations.append(phrase)  # Añadir la traducción completada a la lista
+                gui.update_text('Esperando predicciones...', completed_translations[-1])  # Ac
                 predicted = False
                 n_letters = 0
         start_time = current_time    
@@ -195,8 +210,9 @@ while True:
     ###* EXIT
         
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        break   #press q for exit
-cap.release()
-cv2.destroyAllWindows()
+        app_running = False
 
-sys.exit(app.exec()) # Ejecutar GUI
+close_application()
+
+for translation in completed_translations:
+    print(f"Traducción completada: {translation}")
