@@ -1,4 +1,6 @@
-import keet_database as kdb
+import sys
+import io
+
 import cv2
 import pandas as pd
 import tensorflow as tf
@@ -6,11 +8,11 @@ import joblib
 import numpy as np
 import time 
 import mediapipe as mp
+
 import basic_voice_system as bvs
+import keet_database as kdb
 from PySide6.QtWidgets import QApplication
 from gui import GUI
-import sys
-import io
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -117,7 +119,7 @@ while app_running:
     face_mesh_results = face_mesh_images.process(frame)
     
     if face_mesh_results.multi_face_landmarks:
-        lm = face_mesh_results.multi_face_landmarks[0]  # Solo usar la primera cara detectada
+        lm = face_mesh_results.multi_face_landmarks[0] 
         landmarks = lm.landmark
         # Extraer las posiciones de los landmarks
         positions_x = np.array([landmark.x for landmark in landmarks])

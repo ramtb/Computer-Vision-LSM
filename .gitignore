@@ -246,4 +246,5 @@ $RECYCLE.BIN/
 
 # Others
 gui/
-voice/
+# voice/
+# images/
