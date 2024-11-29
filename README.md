@@ -25,15 +25,8 @@ Esta carpeta contiene los datos utilizados en el proyecto, organizados en difere
 - **`features/`**: Características extraídas de los datos procesados, listas para la entrada en los modelos.
 - **`README.md`**: Descripción de los datos 
 
-### 4. `pipelines/` - Pipelines de Procesamiento
-En esta carpeta se encuentran los scripts utilizados para **preprocesar** los datos, **entrenar** los modelos, y realizar **evaluaciones** e **inferencias**.
 
-- **`preprocesamiento.py`**: Script que realiza el preprocesamiento de los datos.
-- **`entrenamiento.py`**: Script para entrenar los modelos de IA.
-- **`evaluacion.py`**: Script para evaluar los modelos utilizando métricas estándar.
-- **`inferencia.py`**: Script para realizar inferencias con el modelo entrenado sobre nuevos datos.
-
-### 5. `visualization/` - Visualización y Análisis
+### 4. `visualization/` - Visualización y Análisis
 Esta carpeta contiene todo lo relacionado con la **visualización de datos** y resultados.
 
 - **`graficos.py`**: Código para generar gráficos y visualizaciones utilizando herramientas como Matplotlib y Seaborn.
@@ -41,22 +34,22 @@ Esta carpeta contiene todo lo relacionado con la **visualización de datos** y r
 - **`plots/`**: Carpeta donde se guardan las salidas gráficas generadas.
 - **`README.md`**: Guía sobre cómo generar y visualizar gráficos en el proyecto.
 
-### 6. `gui/` - Interfaz Gráfica de Usuario (GUI)
+### 5. `gui/` - Interfaz Gráfica de Usuario (GUI)
 Esta carpeta contiene todo lo relacionado con la **interfaz gráfica de usuario (GUI)** del proyecto.
 
 - **`main.py`**: Script principal que inicializa y ejecuta la GUI.
 - **`components/`**: Componentes reutilizables de la GUI, como botones, cuadros de texto, etc.
 - **`assets/`**: Recursos estáticos, como imágenes, íconos y archivos de estilo (CSS, JSON, etc.).
 
-### 7. `modules/` - Módulos Reutilizables
+### 6. `modules/` - Módulos Reutilizables
 Esta carpeta contiene **módulos de código reutilizables** que encapsulan funcionalidades específicas y son utilizados en diferentes partes del proyecto.
 
 - **`utils.py`**: Funciones auxiliares generales que no encajan en otros módulos.
 
-### 8. `tests/` - Pruebas Automatizadas
+### 7. `tests/` - Pruebas Automatizadas
 Contiene pruebas automatizadas para garantizar que el código funciona como se espera. Las pruebas pueden ser unitarias o de integración.
 
-### 9. Archivos de Configuración
+### 8. Archivos de Configuración
 - **`README.md`**: Este archivo, donde se proporciona información sobre el proyecto y su uso.
 - **`requirements.txt`**: Archivo que lista las dependencias necesarias para ejecutar el proyecto.
 - **`setup.py`**: Configuración para la instalación del proyecto como paquete Python.
