@@ -12,10 +12,12 @@ import re
 import platform
 from typing import Dict
 mpDraw = None
+cx_saved = None 
+cy_saved = None 
+cxROI_saved = None 
+cyROI_saved = None 
 point_save = None
 mpHands = None
-Letra = None
-csv = None
 ######* CAMERA SETTINGS ###########
 def camera_settings(width_cam = 1280, height_cam = 720, camera = 0)-> tuple:
     """
@@ -30,8 +32,6 @@ def camera_settings(width_cam = 1280, height_cam = 720, camera = 0)-> tuple:
     cap = cv2.VideoCapture(camera) #* CAMERA SETTINGS
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, width_cam)  #* set the width of the camera
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height_cam)  #* set the height of the camera
-    # Añadir esta línea para ajustar el tamaño del buffer
-    #cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     print(f'Resolution: {width},{height}')
@@ -97,24 +97,6 @@ def sign() -> str:
     name_selected = simpledialog.askstring("Sign", "Enter the signal to capture:") 
     root.destroy()
     return name_selected
-
-def n_hand():
-    """
-    This function creates a dialog box to enter the number of hands to be detected.
-    Returns:
-    num_hand: The number of hands to be detected.
-    """
-    root = tk.Tk()
-    root.withdraw()  # Hide the root window
-    
-    while True:
-        num_hand = simpledialog.askinteger("Number of Hands", "Enter the number of hands to be detected:")
-        if num_hand in (1, 2):
-            root.destroy()
-            return num_hand
-        else:
-            tk.messagebox.showerror("Invalid Input", "The number of hands must be 1 or 2.")
-
 
 def sign_name (folder_name) -> str:
     """ 
@@ -249,7 +231,6 @@ def save_number(imgformat, dataformat, folder_name)-> tuple:
     csv (lambda): The name of the data.
     
     """
-    global Letra, csv
     Letra = lambda Nimages: folder_name + f'{Nimages}.'+imgformat
     csv = lambda Nimages: folder_name + f'{Nimages}.'+dataformat
     return Letra, csv
@@ -284,7 +265,7 @@ def time_set()-> tuple:
     timeflag = False
     return time_frames, t, t1, timeflag
 
-def hand_medipip(num_hand, min_detection_c = 0.5, min_detection_t = 0.5)-> tuple:
+def hand_medipip(num_hand = 2, min_detection_c = 0.5, min_detection_t = 0.5)-> tuple:
     """
     This function sets the mediapipe parameters for the program.
     Returns:
@@ -325,30 +306,26 @@ def frame_settings()-> tuple:
 
 #################* TRACKING ####################
 
-def read_frames(cap, hands, equali=True) -> tuple:
-    ret, frame = cap.read()  # Leer frame de la cámara
-    frame_copy = frame.copy()  # Copiar el frame si es válido
-    frame_gray = cv2.cvtColor(frame_copy, cv2.COLOR_BGR2GRAY)  # Cambiar escala de color
+def read_frames(cap,hands,equali = True)-> tuple:
+    """
+    This function reads the frames from the camera.
+    Returns:
+    frame: The frame from the camera.
+    frame_copy: A copy of the frame.
+    frame_gray: The frame in gray scale.
+    frame_equali: The frame with the histogram equalized.
+    results: The results from the hands object.
     
-    if equali:
-        frame_equali = cv2.equalizeHist(frame_gray)  # Ecualización de histograma
+    """
+    ret, frame = cap.read()           #* READ FRAMES FROM CAMERA
+    frame_copy = frame.copy()  ### Copy of the FRAME
+    frame_gray = cv2.cvtColor(frame_copy,cv2.COLOR_BGR2GRAY)  #*CHANGE THE SCALE COLOR
+    if equali == True:
+        frame_equali = cv2.equalizeHist(frame_gray)  #*Equalize the histogram
     else:
         frame_equali = frame_gray
-
-    results = hands.process(frame)  # Procesar el frame con Mediapipe
-    
+    results = hands.process(frame) 
     return ret, frame, frame_copy, frame_gray, frame_equali, results
-
-
-lm_x_h1 = {'h1_x0': 0, 'h1_x1': 0, 'h1_x2': 0, 'h1_x3': 0, 'h1_x4': 0, 'h1_x5': 0, 'h1_x6': 0, 'h1_x7': 0, 'h1_x8': 0, 'h1_x9': 0, 'h1_x10': 0, 'h1_x11': 0, 'h1_x12': 0, 'h1_x13': 0, 'h1_x14': 0, 'h1_x15': 0, 'h1_x16': 0, 'h1_x17': 0, 'h1_x18': 0, 'h1_x19': 0, 'h1_x20': 0}
-lm_x_h1_roi = {'h1_x0_roi': 0, 'h1_x1_roi': 0, 'h1_x2_roi': 0, 'h1_x3_roi': 0, 'h1_x4_roi': 0, 'h1_x5_roi': 0, 'h1_x6_roi': 0, 'h1_x7_roi': 0, 'h1_x8_roi': 0, 'h1_x9_roi': 0, 'h1_x10_roi': 0, 'h1_x11_roi': 0, 'h1_x12_roi': 0, 'h1_x13_roi': 0, 'h1_x14_roi': 0, 'h1_x15_roi': 0, 'h1_x16_roi': 0, 'h1_x17_roi': 0, 'h1_x18_roi': 0, 'h1_x19_roi': 0, 'h1_x20_roi': 0}
-lm_y_h1 = {'h1_y0': 0, 'h1_y1': 0, 'h1_y2': 0, 'h1_y3': 0, 'h1_y4': 0, 'h1_y5': 0, 'h1_y6': 0, 'h1_y7': 0, 'h1_y8': 0, 'h1_y9': 0, 'h1_y10': 0, 'h1_y11': 0, 'h1_y12': 0, 'h1_y13': 0, 'h1_y14': 0, 'h1_y15': 0, 'h1_y16': 0, 'h1_y17': 0, 'h1_y18': 0, 'h1_y19': 0, 'h1_y20': 0}
-lm_y_h1_roi = {'h1_y0_roi': 0, 'h1_y1_roi': 0, 'h1_y2_roi': 0, 'h1_y3_roi': 0, 'h1_y4_roi': 0, 'h1_y5_roi': 0, 'h1_y6_roi': 0, 'h1_y7_roi': 0, 'h1_y8_roi': 0, 'h1_y9_roi': 0, 'h1_y10_roi': 0, 'h1_y11_roi': 0, 'h1_y12_roi': 0, 'h1_y13_roi': 0, 'h1_y14_roi': 0, 'h1_y15_roi': 0, 'h1_y16_roi': 0, 'h1_y17_roi': 0, 'h1_y18_roi': 0, 'h1_y19_roi': 0, 'h1_y20_roi': 0}
-            
-lm_x_h2 = {}  #* DICTIONARY FOR X POSITIONS OF LANDMARKS
-lm_y_h2 = {}  #* DICTIONARY FOR Y POSITIONS OF LANDMARKS
-lm_x_h2_roi = {}  #* DICTIONARY FOR X POSITIONS OF LANDMARKS
-lm_y_h2_roi = {}  #* DICTIONARY FOR Y POSITIONS OF LANDMARKS
 
 def process_hand_landmarks( point_save, frame_equali, results, width,height, t, tiempo_de_espera, save_len, print_lm = False, size_roi = 0.087)-> tuple:
     """
@@ -380,9 +357,12 @@ def process_hand_landmarks( point_save, frame_equali, results, width,height, t, 
     save_len (int): The length of the saved lists.
     
     """
-    global lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved  
+    global cy_saved 
+    global cxROI_saved  
+    global cyROI_saved  
     roi_save = [] #* SAVE THE ROIS
-   
+    
     if results.multi_hand_landmarks:  ###* if THIS OBJECT IS NOT EMPTY DO THE CONDITIONAL
         # print(results.multi_hand_landmarks)
         # print('**'*30)
@@ -392,7 +372,7 @@ def process_hand_landmarks( point_save, frame_equali, results, width,height, t, 
                 lm_x_h1 = {'h1_x0': int(lm_h1[0].x * width), 'h1_x1': int(lm_h1[1].x * width), 'h1_x2': int(lm_h1[2].x * width), 'h1_x3': int(lm_h1[3].x * width), 'h1_x4': int(lm_h1[4].x * width), 'h1_x5': int(lm_h1[5].x * width), 'h1_x6': int(lm_h1[6].x * width), 'h1_x7': int(lm_h1[7].x * width), 'h1_x8': int(lm_h1[8].x * width), 'h1_x9': int(lm_h1[9].x * width), 'h1_x10': int(lm_h1[10].x * width), 'h1_x11': int(lm_h1[11].x * width), 'h1_x12': int(lm_h1[12].x * width), 'h1_x13': int(lm_h1[13].x * width), 'h1_x14': int(lm_h1[14].x * width), 'h1_x15': int(lm_h1[15].x * width), 'h1_x16': int(lm_h1[16].x * width), 'h1_x17': int(lm_h1[17].x * width), 'h1_x18': int(lm_h1[18].x * width), 'h1_x19': int(lm_h1[19].x * width), 'h1_x20': int(lm_h1[20].x * width)}
                 lm_y_h1 = {'h1_y0': int(lm_h1[0].y * height), 'h1_y1': int(lm_h1[1].y * height), 'h1_y2': int(lm_h1[2].y * height), 'h1_y3': int(lm_h1[3].y * height), 'h1_y4': int(lm_h1[4].y * height), 'h1_y5': int(lm_h1[5].y * height), 'h1_y6': int(lm_h1[6].y * height), 'h1_y7': int(lm_h1[7].y * height), 'h1_y8': int(lm_h1[8].y * height), 'h1_y9': int(lm_h1[9].y * height), 'h1_y10': int(lm_h1[10].y * height), 'h1_y11': int(lm_h1[11].y * height), 'h1_y12': int(lm_h1[12].y * height), 'h1_y13': int(lm_h1[13].y * height), 'h1_y14': int(lm_h1[14].y * height), 'h1_y15': int(lm_h1[15].y * height), 'h1_y16': int(lm_h1[16].y * height), 'h1_y17': int(lm_h1[17].y * height), 'h1_y18': int(lm_h1[18].y * height), 'h1_y19': int(lm_h1[19].y * height), 'h1_y20': int(lm_h1[20].y * height)}
                 lm_z_h1 = {'h1_z0': int(lm_h1[0].z), 'h1_z1': int(lm_h1[1].z), 'h1_z2': int(lm_h1[2].z), 'h1_z3': int(lm_h1[3].z), 'h1_z4': int(lm_h1[4].z), 'h1_z5': int(lm_h1[5].z), 'h1_z6': int(lm_h1[6].z), 'h1_z7': int(lm_h1[7].z), 'h1_z8': int(lm_h1[8].z), 'h1_z9': int(lm_h1[9].z), 'h1_z10': int(lm_h1[10].z), 'h1_z11': int(lm_h1[11].z), 'h1_z12': int(lm_h1[12].z), 'h1_z13': int(lm_h1[13].z), 'h1_z14': int(lm_h1[14].z), 'h1_z15': int(lm_h1[15].z), 'h1_z16': int(lm_h1[16].z), 'h1_z17': int(lm_h1[17].z), 'h1_z18': int(lm_h1[18].z), 'h1_z19': int(lm_h1[19].z), 'h1_z20': int(lm_h1[20].z)}
-                flag = i+1
+
                 if print_lm == True:
                     print(lm_x_h1)
                     print(lm_y_h1)
@@ -402,8 +382,8 @@ def process_hand_landmarks( point_save, frame_equali, results, width,height, t, 
                 roi = frame_equali[y_min:y_max, x_min:x_max]  #! EQUALIZED ROIS SAVED
                 roi_save.append(roi)
                 roi_width, roi_height = roi.shape
-                lm_x_h1_roi = {f'h1_xroi{i}': int(lm_h1[i].x*roi_width) for i in range(21)}
-                lm_y_h1_roi = {f'h1_yroi{i}': int(lm_h1[i].y*roi_height) for i in range(21)}
+                lm_x_h1_roi = {f'h1_xroi{i}': lm_h1[i].x*roi_width for i in range(21)}
+                lm_y_h1_roi = {f'h1_yroi{i}': lm_h1[i].y*roi_height for i in range(21)}
                 point_save['h1_x_min'], point_save['h1_y_min'], point_save['h1_x_max'], point_save['h1_y_max'] = x_min, y_min, x_max, y_max
             if  i == 1:
                 lm_h2 =  handlms.landmark   #results.multi_hand_landmarks[1].landmark
@@ -422,10 +402,9 @@ def process_hand_landmarks( point_save, frame_equali, results, width,height, t, 
                 roi_width, roi_height = roi.shape
                 prop_x = roi_width / width
                 prop_y = roi_height / height
-                lm_x_h2_roi = {f'h2_xroi{i}': int(lm_h2[i].x*roi_width) for i in range(21)}
-                lm_y_h2_roi = {f'h2_yroi{i}': int(lm_h2[i].y*roi_height) for i in range(21)}
+                lm_x_h2_roi = {f'h2_xroi{i}': lm_h2[i].x*roi_width for i in range(21)}
+                lm_y_h2_roi = {f'h2_yroi{i}': lm_h2[i].y*roi_height for i in range(21)}
                 point_save['h2_x_min'], point_save['h2_y_min'], point_save['h2_x_max'], point_save['h2_y_max'] = x_min, y_min, x_max, y_max
-            
             # for id, lm in enumerate(handlms.landmark):
             #     cx, cy = int(lm.x * width), int(lm.y * height)
             #     if cx < x_min:
@@ -441,15 +420,14 @@ def process_hand_landmarks( point_save, frame_equali, results, width,height, t, 
             #     cx_saved[id] = cx  ### SAVE THE POSITIONS OF LANDMARKS
             #     cy_saved[id] = cy  ### SAVE THE POSITIONS OF LANDMARKS
             #* Definir la ROI (Region of Interest)
-    else:
-         flag = 0
+         
             
             # save_len = len(cx_saved)
             # if t > tiempo_de_espera:
             #     cx_saved = np.zeros(21).reshape(21,1)
             #     cy_saved = np.zeros(21).reshape(21,1)
             #     save_len = 0
-    return roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi,flag
+    return roi_save, save_len
 
 def draw_text_and_rectangles(point_save,frame, width, height, fps,draw_rectangules = True,draw_text = True)-> None:
     """
@@ -471,15 +449,11 @@ def draw_text_and_rectangles(point_save,frame, width, height, fps,draw_rectangul
             cv2.rectangle(frame, pt1=(point_save['h1_x_min'], point_save['h1_y_min']), pt2=(point_save['h1_x_max'], point_save['h1_y_max']), color=(100, 100, 255), thickness=3)
         if draw_text == True:
             cv2.putText(frame, f'ROI{1}', (point_save['h1_x_min'], point_save['h1_y_min']-40), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 3)
-        
-        if 'h2_x_min' in point_save.keys():
+        if point_save['h2_x_min'] != 0:
             if draw_rectangules == True:
                 cv2.rectangle(frame, pt1=(point_save['h2_x_min'], point_save['h2_y_min']), pt2=(point_save['h2_x_max'], point_save['h2_y_max']), color=(255 ,100, 100), thickness=3)
             if draw_text == True:
                 cv2.putText(frame, f'ROI{2}', (point_save['h2_x_min'], point_save['h2_y_min']-40), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 3) 
-    else:
-        pass
-
 def ends_if(cTime, fps, Ts, pTime, time_frames)-> tuple:
     """
     This function ends the program if the key 'q' is pressed.
@@ -527,22 +501,16 @@ def save_roi(index, Nimages, full_path, roi_save, frame, width, height, df)-> tu
     SAVED (bool): A flag to save the ROI.
     
     """
-    global lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved, cxROI_saved, cy_saved, cyROI_saved
     Nimages += 1
     cv2.imwrite(full_path + '\\' + Letra(Nimages), roi_save[index])
     cv2.putText(frame, f'ROI {index+1} SAVED', (int(width*0.36),int(height*0.4)), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,255), 2)
-    if index == 0:
-        df['cx'], df['cxROI'], df['cy'], df['cyROI'] = lm_x_h1.values(), lm_x_h1_roi.values(), lm_y_h1.values(), lm_y_h1_roi.values()
-        df.to_csv(full_path + '//' + csv(Nimages), index=False)
-        print(df)
-    if index == 1:
-        df['cx'], df['cxROI'], df['cy'], df['cyROI'] = lm_x_h1.values(), lm_x_h1_roi.values(), lm_y_h1.values(), lm_y_h1_roi.values()
-        df.to_csv(full_path + '//' + csv(Nimages) + 'R', index=False)
-        df['cx'] = lm_x_h2.values()
-        df['cxROI'] = lm_x_h2_roi.values()
-        df['cy'] =  lm_y_h2.values()
-        df['cyROI'] = lm_y_h2_roi.values()
-        df.to_csv(full_path + '//' + csv(Nimages) + 'L', index=False)
+    df['cx'] = cx_saved
+    df['cxROI'] = cxROI_saved
+    df['cy'] = cy_saved
+    df['cyROI'] = cyROI_saved
+    df.to_csv(full_path + '//' + csv(Nimages), index=False)
+    print(df)
     return Nimages, True
 
 def show_message(frame, message, position, width, height)-> None:
@@ -579,13 +547,13 @@ def process_static_mode(frame, width, height, roi_save, full_path, Nimages, df, 
     SAVED (bool): A flag to save the ROI.
     
     """
-    global lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved, cxROI_saved, cy_saved, cyROI_saved
     show_message(frame, 'Press 1 or 2 to capture the ROI', (0.1, 0.9), width, height)
     key = cv2.waitKey(1) & 0xFF
     if key == ord('1') and len(roi_save) > 0:
-        Nimages, SAVED = save_roi(0, Nimages, full_path, roi_save, frame, width, height, df)
+        Nimages, SAVED = save_roi(0, Nimages, full_path, roi_save, frame, width, height, df, cx_saved, cxROI_saved, cy_saved, cyROI_saved)
     elif key == ord('2') and len(roi_save) > 1:
-        Nimages, SAVED = save_roi(1, Nimages, full_path, roi_save, frame, width, height, df)
+        Nimages, SAVED = save_roi(1, Nimages, full_path, roi_save, frame, width, height, df, cx_saved, cxROI_saved, cy_saved, cyROI_saved)
     return Nimages, SAVED
 
 def process_dynamic_mode(frame, width, height, roi_save, full_path, Nimages, timeflag)-> bool:
@@ -624,10 +592,7 @@ def update_time_display(frame, t, tiempo_de_espera)-> None:
     """
     global point_save
     for i in range(len(point_save)):
-        if i == 0:
-            cv2.putText(frame, str(tiempo_de_espera - t), (point_save['h1_x_min'] + 50, point_save['h1_y_min'] - 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,100,100), 3)
-        if i == 1:
-            cv2.putText(frame, str(tiempo_de_espera - t), (point_save['h2_x_min'] + 50, point_save['h2_y_min'] - 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,100,100), 3)
+        cv2.putText(frame, str(tiempo_de_espera - t), (point_save[i][0] + 50, point_save[i][1] - 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,100,100), 3)
 
 def update_recording_display(frame, t1)-> None:
     """
@@ -640,10 +605,7 @@ def update_recording_display(frame, t1)-> None:
     """
     global point_save
     for i in range(len(point_save)):
-        if i == 0:
-            cv2.putText(frame, "RECORDING:" + str(t1), (point_save['h1_x_min'] + 50, point_save['h1_y_min'] - 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,100,100), 3)
-        if i == 1:
-            cv2.putText(frame, "RECORDING:" + str(t1), (point_save['h2_x_min'] + 50, point_save['h2_y_min'] - 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,100,100), 3)
+        cv2.putText(frame, "RECORDING:" + str(t1), (point_save[i][0] + 50, point_save[i][1] - 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,100,100), 3)
 
 def interface(frame, width, height, roi_save, full_path, Nimages, df, SAVED, timeflag, t, Ts, tiempo_de_espera, RECORDING, t1, DINAMIC)-> tuple:
     """
@@ -678,7 +640,7 @@ def interface(frame, width, height, roi_save, full_path, Nimages, df, SAVED, tim
     t1 (float): The time for the recording.
     
     """
-    global lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved, cxROI_saved, cy_saved, cyROI_saved, point_save
     if DINAMIC == False:
         if 0 < len(roi_save) < 3:
             Nimages, SAVED = process_static_mode(frame, width, height, roi_save, full_path, Nimages, df,  SAVED)
@@ -693,7 +655,7 @@ def interface(frame, width, height, roi_save, full_path, Nimages, df, SAVED, tim
     if timeflag:
         t += Ts
         t = round(t, 2)
-        update_time_display(frame, t, tiempo_de_espera)
+        update_time_display(frame, point_save, t, tiempo_de_espera)
 
     if t > tiempo_de_espera:
         t = 0
@@ -703,7 +665,7 @@ def interface(frame, width, height, roi_save, full_path, Nimages, df, SAVED, tim
     if RECORDING:
         t1 += Ts
         t1 = round(t1, 2)
-        update_recording_display(frame, t1)
+        update_recording_display(frame, point_save, t1)
 
     return Nimages, SAVED, timeflag, t, RECORDING, t1
 
@@ -762,20 +724,16 @@ def remake_parameters(df,  RECORDING, t1, save_len)-> tuple:
     save_len: The length of the saved lists.
     
     """
-    global lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved, cy_saved, cxROI_saved, cyROI_saved
     df = pd.DataFrame()
-    """lm_x_h1 = {'h1_x0': 0, 'h1_x1': 0, 'h1_x2': 0, 'h1_x3': 0, 'h1_x4': 0, 'h1_x5': 0, 'h1_x6': 0, 'h1_x7': 0, 'h1_x8': 0, 'h1_x9': 0, 'h1_x10': 0, 'h1_x11': 0, 'h1_x12': 0, 'h1_x13': 0, 'h1_x14': 0, 'h1_x15': 0, 'h1_x16': 0, 'h1_x17': 0, 'h1_x18': 0, 'h1_x19': 0, 'h1_x20': 0}
-    lm_x_h1_roi = {'h1_x0_roi': 0, 'h1_x1_roi': 0, 'h1_x2_roi': 0, 'h1_x3_roi': 0, 'h1_x4_roi': 0, 'h1_x5_roi': 0, 'h1_x6_roi': 0, 'h1_x7_roi': 0, 'h1_x8_roi': 0, 'h1_x9_roi': 0, 'h1_x10_roi': 0, 'h1_x11_roi': 0, 'h1_x12_roi': 0, 'h1_x13_roi': 0, 'h1_x14_roi': 0, 'h1_x15_roi': 0, 'h1_x16_roi': 0, 'h1_x17_roi': 0, 'h1_x18_roi': 0, 'h1_x19_roi': 0, 'h1_x20_roi': 0}
-    lm_y_h1 = {'h1_y0': 0, 'h1_y1': 0, 'h1_y2': 0, 'h1_y3': 0, 'h1_y4': 0, 'h1_y5': 0, 'h1_y6': 0, 'h1_y7': 0, 'h1_y8': 0, 'h1_y9': 0, 'h1_y10': 0, 'h1_y11': 0, 'h1_y12': 0, 'h1_y13': 0, 'h1_y14': 0, 'h1_y15': 0, 'h1_y16': 0, 'h1_y17': 0, 'h1_y18': 0, 'h1_y19': 0, 'h1_y20': 0}
-    lm_y_h1_roi = {'h1_y0_roi': 0, 'h1_y1_roi': 0, 'h1_y2_roi': 0, 'h1_y3_roi': 0, 'h1_y4_roi': 0, 'h1_y5_roi': 0, 'h1_y6_roi': 0, 'h1_y7_roi': 0, 'h1_y8_roi': 0, 'h1_y9_roi': 0, 'h1_y10_roi': 0, 'h1_y11_roi': 0, 'h1_y12_roi': 0, 'h1_y13_roi': 0, 'h1_y14_roi': 0, 'h1_y15_roi': 0, 'h1_y16_roi': 0, 'h1_y17_roi': 0, 'h1_y18_roi': 0, 'h1_y19_roi': 0, 'h1_y20_roi': 0}
-    lm_x_h2 = {}
-    lm_x_h2_roi = {}
-    lm_y_h2 = {}
-    lm_y_h2_roi = {}"""
+    cx_saved = None
+    cy_saved = None
+    cxROI_saved = None
+    cyROI_saved = None
     RECORDING = False
     t1 = 0
     save_len = 0
-    return df, RECORDING, t1, save_len, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    return df, RECORDING, t1, save_len
 
 def roi_in_roi(roi_save, window_move)-> list:
     """
@@ -826,7 +784,7 @@ def imshow(frame)-> None:
     """
     cv2.imshow('frame',frame)
 
-def main_show(frame, SAVED, width, height, roi_save, window_move, df, RECORDING, t1, save_len, show_rois = False)-> bool:
+def main_show(frame, SAVED, width, height, roi_save, window_move, df, RECORDING, t1, save_len)-> bool:
     """
     This function shows the frame from the camera.
     Parameters:
@@ -848,18 +806,18 @@ def main_show(frame, SAVED, width, height, roi_save, window_move, df, RECORDING,
     SAVED (bool): A flag to save the ROI.
     
     """
-    global  lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved, cy_saved, cxROI_saved, cyROI_saved
     imshow(frame)
     
     if SAVED == True:
 
         SAVED = save_true(frame, width, height)
     if len(roi_save)>0 and len(roi_save)<3:  #### if there is some roi in roi_save do the for loop
-        if show_rois:
-            roi_in_roi(roi_save, window_move)  
+
+        roi_in_roi(roi_save, window_move)  
     else:
 
-        df, RECORDING, t1, save_len, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi = remake_parameters(df, RECORDING, t1, save_len)
+        df, RECORDING, t1, save_len = remake_parameters(df, RECORDING, t1, save_len)
     return SAVED
 
 ###################* RESETS THE LIST ####################
@@ -876,9 +834,9 @@ def reset_save(roi_save)-> tuple:
     
     """
     global point_save
-    point_save =  {'h1_x_min': 0, 'h1_y_min': 0, 'h1_x_max': 0, 'h1_y_max' : 0, 'h2_x_min': 0, 'h2_y_min': 0, 'h2_x_max': 0, 'h2_y_max' : 0 }
+    point_save = None
     roi_save = []
-    return roi_save, point_save
+    return roi_save
 
 def fals_dinam(DINAMIC, df, RECORDING, t1, save_len)-> tuple:
     """
@@ -904,24 +862,18 @@ def fals_dinam(DINAMIC, df, RECORDING, t1, save_len)-> tuple:
     save_len: The length of the saved lists.
     
     """
-    global lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved, cy_saved, cxROI_saved, cyROI_saved
     if DINAMIC == False:
         df = pd.DataFrame()
-        """lm_x_h1 = {'h1_x0': 0, 'h1_x1': 0, 'h1_x2': 0, 'h1_x3': 0, 'h1_x4': 0, 'h1_x5': 0, 'h1_x6': 0, 'h1_x7': 0, 'h1_x8': 0, 'h1_x9': 0, 'h1_x10': 0, 'h1_x11': 0, 'h1_x12': 0, 'h1_x13': 0, 'h1_x14': 0, 'h1_x15': 0, 'h1_x16': 0, 'h1_x17': 0, 'h1_x18': 0, 'h1_x19': 0, 'h1_x20': 0}
-        lm_x_h1_roi = {'h1_x0_roi': 0, 'h1_x1_roi': 0, 'h1_x2_roi': 0, 'h1_x3_roi': 0, 'h1_x4_roi': 0, 'h1_x5_roi': 0, 'h1_x6_roi': 0, 'h1_x7_roi': 0, 'h1_x8_roi': 0, 'h1_x9_roi': 0, 'h1_x10_roi': 0, 'h1_x11_roi': 0, 'h1_x12_roi': 0, 'h1_x13_roi': 0, 'h1_x14_roi': 0, 'h1_x15_roi': 0, 'h1_x16_roi': 0, 'h1_x17_roi': 0, 'h1_x18_roi': 0, 'h1_x19_roi': 0, 'h1_x20_roi': 0}
-        lm_y_h1 = {'h1_y0': 0, 'h1_y1': 0, 'h1_y2': 0, 'h1_y3': 0, 'h1_y4': 0, 'h1_y5': 0, 'h1_y6': 0, 'h1_y7': 0, 'h1_y8': 0, 'h1_y9': 0, 'h1_y10': 0, 'h1_y11': 0, 'h1_y12': 0, 'h1_y13': 0, 'h1_y14': 0, 'h1_y15': 0, 'h1_y16': 0, 'h1_y17': 0, 'h1_y18': 0, 'h1_y19': 0, 'h1_y20': 0}
-        lm_y_h1_roi = {'h1_y0_roi': 0, 'h1_y1_roi': 0, 'h1_y2_roi': 0, 'h1_y3_roi': 0, 'h1_y4_roi': 0, 'h1_y5_roi': 0, 'h1_y6_roi': 0, 'h1_y7_roi': 0, 'h1_y8_roi': 0, 'h1_y9_roi': 0, 'h1_y10_roi': 0, 'h1_y11_roi': 0, 'h1_y12_roi': 0, 'h1_y13_roi': 0, 'h1_y14_roi': 0, 'h1_y15_roi': 0, 'h1_y16_roi': 0, 'h1_y17_roi': 0, 'h1_y18_roi': 0, 'h1_y19_roi': 0, 'h1_y20_roi': 0}
-           """ 
-        lm_x_h2 = {}
-        lm_x_h2_roi = {}
-        lm_y_h2 = {}
-        lm_y_h2_roi = {}
-        
+        cx_saved = []
+        cy_saved =[]
+        cxROI_saved = []
+        cyROI_saved = []
         ####### print('Manos fuera antes de tiempo')
         RECORDING = False
         t1 = 0
         save_len=0
-    return df, RECORDING, t1, save_len, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    return df, RECORDING, t1, save_len
 
 def tru_dinam(DINAMIC, df, RECORDING, t1, save_len, ventana_de_tiempo, full_path, Nimages, width, height, frame)-> tuple:
     """
@@ -954,22 +906,20 @@ def tru_dinam(DINAMIC, df, RECORDING, t1, save_len, ventana_de_tiempo, full_path
     Nimages: The last element in the folder.
     
     """
-    global lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi
+    global cx_saved, cy_saved, cxROI_saved, cyROI_saved
     if DINAMIC == True:
         if t1 > ventana_de_tiempo:
-            df['cx'] = lm_x_h1.values()
-            df['cxROI'] = lm_x_h1_roi.values()
-            df['cy'] = lm_y_h1.values()
-            df['cyROI'] = lm_y_h1_roi.values()
+            df['cx'] = cx_saved
+            df['cxROI'] = cxROI_saved
+            df['cy'] = cy_saved
+            df['cyROI'] = cyROI_saved
             #print(df)
             Nimages += 1
             df.to_csv(full_path+'//' + csv(Nimages), index=True)
-            """
-            lm_x_h1 = {'h1_x0': 0, 'h1_x1': 0, 'h1_x2': 0, 'h1_x3': 0, 'h1_x4': 0, 'h1_x5': 0, 'h1_x6': 0, 'h1_x7': 0, 'h1_x8': 0, 'h1_x9': 0, 'h1_x10': 0, 'h1_x11': 0, 'h1_x12': 0, 'h1_x13': 0, 'h1_x14': 0, 'h1_x15': 0, 'h1_x16': 0, 'h1_x17': 0, 'h1_x18': 0, 'h1_x19': 0, 'h1_x20': 0}
-            lm_x_h1_roi = {'h1_x0_roi': 0, 'h1_x1_roi': 0, 'h1_x2_roi': 0, 'h1_x3_roi': 0, 'h1_x4_roi': 0, 'h1_x5_roi': 0, 'h1_x6_roi': 0, 'h1_x7_roi': 0, 'h1_x8_roi': 0, 'h1_x9_roi': 0, 'h1_x10_roi': 0, 'h1_x11_roi': 0, 'h1_x12_roi': 0, 'h1_x13_roi': 0, 'h1_x14_roi': 0, 'h1_x15_roi': 0, 'h1_x16_roi': 0, 'h1_x17_roi': 0, 'h1_x18_roi': 0, 'h1_x19_roi': 0, 'h1_x20_roi': 0}
-            lm_y_h1 = {'h1_y0': 0, 'h1_y1': 0, 'h1_y2': 0, 'h1_y3': 0, 'h1_y4': 0, 'h1_y5': 0, 'h1_y6': 0, 'h1_y7': 0, 'h1_y8': 0, 'h1_y9': 0, 'h1_y10': 0, 'h1_y11': 0, 'h1_y12': 0, 'h1_y13': 0, 'h1_y14': 0, 'h1_y15': 0, 'h1_y16': 0, 'h1_y17': 0, 'h1_y18': 0, 'h1_y19': 0, 'h1_y20': 0}
-            lm_y_h1_roi = {'h1_y0_roi': 0, 'h1_y1_roi': 0, 'h1_y2_roi': 0, 'h1_y3_roi': 0, 'h1_y4_roi': 0, 'h1_y5_roi': 0, 'h1_y6_roi': 0, 'h1_y7_roi': 0, 'h1_y8_roi': 0, 'h1_y9_roi': 0, 'h1_y10_roi': 0, 'h1_y11_roi': 0, 'h1_y12_roi': 0, 'h1_y13_roi': 0, 'h1_y14_roi': 0, 'h1_y15_roi': 0, 'h1_y16_roi': 0, 'h1_y17_roi': 0, 'h1_y18_roi': 0, 'h1_y19_roi': 0, 'h1_y20_roi': 0}
-            """
+            cx_saved = []
+            cy_saved =[]
+            cxROI_saved = []
+            cyROI_saved = []
             save_len = 0
             t1 = 0
             df = pd.DataFrame()
@@ -977,5 +927,5 @@ def tru_dinam(DINAMIC, df, RECORDING, t1, save_len, ventana_de_tiempo, full_path
             cv2.putText(frame,'Press any key to continue', (int(width*0.2),int(height*0.5)),cv2.FONT_HERSHEY_SIMPLEX,2,(0,0,255),2)
             cv2.imshow('frame', frame)
             cv2.waitKey(0)  # Espera a que se presione cualquier tecla
-    return df, RECORDING, t1, save_len, Nimages, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi   
+    return df, RECORDING, t1, save_len, Nimages  
 
