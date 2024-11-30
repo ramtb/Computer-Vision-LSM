@@ -2,6 +2,7 @@
 
 Este repositorio contiene...
 
+La versión de Python que estoy utilizando es la 3.11.5
 ## Estructura del Repositorio
 
 La estructura del repositorio está organizada en varias carpetas para facilitar la modularización y reutilización del código. Aquí se describe el contenido de cada carpeta:
