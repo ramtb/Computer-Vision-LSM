@@ -1,38 +1,79 @@
-# Archivos de sistema
-.DS_Store           # macOS
-Thumbs.db           # Windows
+# Entornos virtuales
+venv/
+.env/
+
+# Archivos de configuración de entorno
+.env
+*.env
+
+# Archivos compilados de Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
 
 # Archivos de logs
 *.log
 
-# Directorios de dependencias
-node_modules/       # Node.js
-venv/               # Entornos virtuales de Python
-.env                # Archivos de entorno
+# Archivos de caché
+*.cache
+*.eggs
+*.egg-info/
 
-# Archivos compilados
-*.class             # Archivos Java compilados
-*.exe               # Archivos ejecutables
-*.out               # Archivos de salida
-*.o                 # Archivos objeto
+# Salidas de herramientas de construcción
+dist/
+build/
+*.egg
 
-# Archivos temporales de editores
-.vscode/            # Configuración de Visual Studio Code
-.idea/              # Configuración de JetBrains IDEs (IntelliJ, PyCharm, etc.)
-*.swp               # Archivos temporales de vim
-*.suo               # Archivos temporales de Visual Studio
+# Salidas de Jupyter Notebooks
+.ipynb_checkpoints/
 
-# Archivos de configuración específicos de herramientas
-*.iml               # Archivos de configuración de IntelliJ IDEA
-*.coverage          # Archivos de cobertura de pruebas (coverage.py)
-*.log               # Archivos de logs generados por el sistema
+# Bases de datos locales
+*.sqlite3
+*.db
 
-# Archivos generados por herramientas de construcción
-/dist/              # Carpeta de distribución (por ejemplo, para proyectos en Node.js)
-build/              # Archivos generados durante el proceso de construcción
-*.tar.gz            # Archivos comprimidos
-*.zip               # Archivos comprimidos
+# Archivos temporales y de sistemas operativos
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# Archivos temporales de sistemas operativos
-Desktop.ini         # Archivos temporales de Windows
-Thumbs.db           # Archivos de caché de imagen de Windows
+# Configuraciones de IDE
+.vscode/
+.idea/
+
+# Datos temporales o generados
+*.csv
+*.json
+*.parquet
+*.xls
+*.xlsx
+*.sav
+*.zip
+*.tar.gz
+
+# Modelos de Machine Learning
+*.pt
+*.pth
+*.joblib
+*.onnx
+
+# Configuraciones de notebooks colaborativos
+*.nbconvert/
+*.nbconfig/
+
+# Archivos sensibles (como claves o configuraciones privadas)
+secret.key
+config.json
+
+# Archivos de pruebas y cobertura
+*.cover
+.coverage
+.cache
+nosetests.xml
+pytest_cache/
+htmlcov/
+.tox/
+
+# Otros archivos que pueden ser relevantes
+*.bak
+*.tmp
