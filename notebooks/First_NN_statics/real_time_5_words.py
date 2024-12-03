@@ -1,10 +1,6 @@
 from modules import keet_database as kdb
 import cv2
-import pandas as pd
-import tensorflow as tf
-import joblib
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import LabelEncoder
+from modules.models_loader import *
 import numpy as np
 import time 
 
@@ -13,10 +9,10 @@ import time
 ############################################################################################################*
 
 ##########* LOAD THE MODEL ################################
-path_save = '..\\..\\models\\Trained\\signs\\GERARDO_MODEL.h5'
-model = tf.keras.models.load_model(path_save)
-scaler = joblib.load('..\\..\\models\\Trained\\signs\\GERARDO_scaler.pkl')
 
+loader = ModelLoaderSigns(model_name = 'GERARDO_MODEL.h5', scaler_name= 'GERARDO_scaler.pkl') 
+model = loader.load_sign_model()
+scaler = loader.load_sign_scaler()
 dict_labels = {0: 'A', 1: 'D', 2:'E'  , 3:'G', 4:'O', 5:'R'}
 start_time = time.time()
 delay_time = 0.5
