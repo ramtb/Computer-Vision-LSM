@@ -1,5 +1,5 @@
 # Visión artificial para el reconocimiento de la Lengua de señas Mexicana
-
+Esta es la rama develop
 Este repositorio contiene...
 
 La versión de Python que estoy utilizando es la 3.11.5
