@@ -1,5 +1,6 @@
 import sys
 import io
+import os
 
 import cv2
 import pandas as pd
@@ -54,7 +55,7 @@ predicted_face = False
 app = QApplication(sys.argv)
 
 relative_dir = RelativeDirToRoot(root_dir='Computer-vision-LSM')
-style_path = relative_dir.generate_path("GUI\\assets\\style.qss")
+style_path = relative_dir.generate_path(os.path.join("GUI", "assets", "style.qss"))
 with open(style_path, "r") as qss_file:
     qss_style = qss_file.read()
 

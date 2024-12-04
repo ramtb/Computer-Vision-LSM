@@ -10,10 +10,10 @@ class RelativeDirToRoot:
 
     def _get_relative_position_to_root(self):
         working_directory = os.getcwd()
-        working_dir_separated = working_directory.split('\\')
+        working_dir_separated = working_directory.split(os.sep)  # Usa el separador adecuado para el sistema operativo
         try:
-            workin_dir_position = working_dir_separated.index(self.root_dir)
-            relative_position_to_root = abs(workin_dir_position - len(working_dir_separated)) - 1
+            working_dir_position = working_dir_separated.index(self.root_dir)
+            relative_position_to_root = abs(working_dir_position - len(working_dir_separated)) - 1
             return relative_position_to_root
         except ValueError:
             raise ValueError(f"Root directory '{self.root_dir}' not found in the path: {working_directory}")
@@ -23,8 +23,8 @@ class RelativeDirToRoot:
         Private method to generate paths for the model and scaler based on the relative position to the root.
         This method is encapsulated and should only be used inside the child classes.
         """
-        model_dir = f'models\\Trained\\{model_type}'
-        model_dir = ''.join(['..\\' for _ in range(relative_position_to_root)]) + model_dir
+        model_dir = f'models{os.sep}Trained{os.sep}{model_type}'
+        model_dir = os.path.join(*(['..' for _ in range(relative_position_to_root)]) + [model_dir])
         model_path = os.path.join(model_dir, model_name)
         scaler_path = os.path.join(model_dir, scaler_name)
         return model_path, scaler_path
@@ -34,8 +34,8 @@ class RelativeDirToRoot:
         Private method to generate paths for the h5 file based on the relative position to the root.
         This method is encapsulated and should only be used inside the child classes.
         """
-        h5_dir = f'data\\features\\{h5_file}'
-        h5_dir = ''.join(['..\\' for _ in range(relative_position_to_root)]) + h5_dir
+        h5_dir = f'data{os.sep}features{os.sep}{h5_file}'
+        h5_dir = os.path.join(*(['..' for _ in range(relative_position_to_root)]) + [h5_dir])
         h5_path = h5_dir
         return h5_path
     
@@ -43,7 +43,7 @@ class RelativeDirToRoot:
         """
         Method to generate paths based on the relative position to the root.
         """
-        path = ''.join(['..\\' for _ in range(self._get_relative_position_to_root())]) + path
+        path = os.path.join(*(['..' for _ in range(self._get_relative_position_to_root())]) + [path])
         return path
 
 
@@ -54,7 +54,7 @@ class ModelLoaderSigns(RelativeDirToRoot):
     """
     Class to manage the loading of models and scalers for signs.
     """
-    def __init__(self,model_name: str, scaler_name: str, root_dir: str = 'Computer-vision-LSM' ):
+    def __init__(self, model_name: str, scaler_name: str, root_dir: str = 'Computer-vision-LSM'):
         self.model_name = model_name
         self.scaler_name = scaler_name
 
@@ -106,30 +106,18 @@ class ModelLoaderFace(RelativeDirToRoot):
         self.scaler = load(self.scaler_path_faces)
         return self.scaler
     
-    
-    
-    
-    
-    
-    
-    
-    
-class load_dataset(RelativeDirToRoot):
-        """ 
-        Class to load h5 files
-        """
-        def __init__(self, h5_file: str ,root_dir = 'Computer-vision-LSM'):
-            super().__init__(root_dir)
-            self.h5_file = h5_file
-            relative_position_to_root = self._get_relative_position_to_root()
-            self.h5_path = self._generate_h5_paths(relative_position_to_root, h5_file)
+class LoadDataset(RelativeDirToRoot):
+    """ 
+    Class to load h5 files
+    """
+    def __init__(self, h5_file: str, root_dir: str = 'Computer-vision-LSM'):
+        super().__init__(root_dir)
+        self.h5_file = h5_file
+        relative_position_to_root = self._get_relative_position_to_root()
+        self.h5_path = self._generate_h5_paths(relative_position_to_root, h5_file)
             
-            
-        def load_h5(self):
-            if not os.path.exists(self.h5_path):
-                raise FileNotFoundError(f"data not found at path: {self.h5_path}")
-            self.h5_file = h5.File(self.h5_path, 'r')
-            return self.h5_file
-            
-        
-            
+    def load_h5(self):
+        if not os.path.exists(self.h5_path):
+            raise FileNotFoundError(f"Data not found at path: {self.h5_path}")
+        self.h5_file = h5.File(self.h5_path, 'r')
+        return self.h5_file
