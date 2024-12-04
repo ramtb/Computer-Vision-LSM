@@ -38,6 +38,13 @@ class RelativeDirToRoot:
         h5_dir = ''.join(['..\\' for _ in range(relative_position_to_root)]) + h5_dir
         h5_path = h5_dir
         return h5_path
+    
+    def generate_path(self, path: str):
+        """
+        Method to generate paths based on the relative position to the root.
+        """
+        path = ''.join(['..\\' for _ in range(self._get_relative_position_to_root())]) + path
+        return path
 
 
 

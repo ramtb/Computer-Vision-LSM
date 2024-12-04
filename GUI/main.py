@@ -9,8 +9,10 @@ import numpy as np
 import time 
 import mediapipe as mp
 
-import basic_voice_system as bvs
-import keet_database as kdb
+import modules.basic_voice_system as bvs
+import modules.keet_database as kdb
+from modules.loaders import ModelLoaderFace, ModelLoaderSigns, RelativeDirToRoot 
+
 from PySide6.QtWidgets import QApplication
 from gui import GUI
 
@@ -28,9 +30,10 @@ emotion_emojis = {
 
 
 ##########* LOAD THE MODEL ################################
-path_save = 'C://Users//arhui//Documents//projects//keet//src//all_statics_model.h5'
-model = tf.keras.models.load_model(path_save)
-scaler = joblib.load('C://Users//arhui//Documents//projects//keet//src//scaler.pkl')
+loader = ModelLoaderSigns(model_name='all_statics_model.h5', scaler_name='all_statics_scaler.pkl')
+model = loader.load_sign_model()
+scaler = loader.load_sign_scaler()
+
 dict_labels = {0: 'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'L', 10:'M', 11:'N', 12:'O', 13:'P', 14:'R', 15:'S', 16:'T', 17:'U', 18:'V', 19:'W', 20:'Y'}
 start_time = time.time()
 delay_time = 1.2
@@ -40,9 +43,9 @@ n_letters = 0
 
 #######* LOAD THE MODEL of faces ################################
 
-path_save_faces = 'C://Users//arhui//Documents//projects//keet//src//face_model.h5'
-model_faces = tf.keras.models.load_model(path_save_faces)
-scaler_faces = joblib.load('C://Users//arhui//Documents//projects//keet//src//scaler_faces.pkl')
+loader_faces = ModelLoaderFace(model_name='face_model.h5', scaler_name='scaler_faces.pkl')
+model_faces = loader_faces.load_face_model()
+scaler_faces = loader_faces.load_face_scaler()
 dict_labels_faces = {0: 'ENOJO', 1: 'FELIZ', 2: 'NEUTRAL', 3: 'SORPRESA', 4: 'TRISTE'}
 predicted_face = False
 
@@ -50,7 +53,9 @@ predicted_face = False
 
 app = QApplication(sys.argv)
 
-with open("C://Users//arhui//Documents//projects//keet//src//style.qss", "r") as qss_file:
+relative_dir = RelativeDirToRoot(root_dir='Computer-vision-LSM')
+style_path = relative_dir.generate_path("GUI\\assets\\style.qss")
+with open(style_path, "r") as qss_file:
     qss_style = qss_file.read()
 
 app.setStyleSheet(qss_style)
@@ -69,7 +74,7 @@ gui.close_application.connect(close_application)
 
 #########* CAMERA SETTINGS ###########
 
-cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
+cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=1) #* Width and height of the camera
                                                                                     #* 0 for the default camera, 1 for the external camera	 
 
 #########* PARAMETERS ###########

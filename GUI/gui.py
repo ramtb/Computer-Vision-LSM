@@ -5,10 +5,10 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QWidget, QVBoxLayout, 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QColor, QPixmap, QPainter
 from PySide6.QtSvg import QSvgRenderer
-
+from modules.loaders import RelativeDirToRoot
 ### Path images ###
-path_images = "C://Users//arhui//Documents//projects//keet//src//images"
-
+relative_dir = RelativeDirToRoot(root_dir='Computer-vision-LSM')
+path_images = relative_dir.generate_path('GUI\\assets\\images')
 
 class GUI(QWidget):
     close_application = Signal()
