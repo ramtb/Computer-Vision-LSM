@@ -27,7 +27,9 @@ def camera_settings(width_cam = 1280, height_cam = 720, camera = 0)-> tuple:
     kernel: The kernel for the morphological operations.
     
     """
+
     cap = cv2.VideoCapture(camera) #* CAMERA SETTINGS
+    print('hola',cap)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, width_cam)  #* set the width of the camera
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height_cam)  #* set the height of the camera
     # Añadir esta línea para ajustar el tamaño del buffer
@@ -326,7 +328,10 @@ def frame_settings()-> tuple:
 #################* TRACKING ####################
 
 def read_frames(cap, hands, equali=True) -> tuple:
+
     ret, frame = cap.read()  # Leer frame de la cámara
+    if ret == False:
+        raise 'CamError'
     frame_copy = frame.copy()  # Copiar el frame si es válido
     frame_gray = cv2.cvtColor(frame_copy, cv2.COLOR_BGR2GRAY)  # Cambiar escala de color
     
