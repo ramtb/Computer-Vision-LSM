@@ -30,6 +30,8 @@ def camera_settings(width_cam = 1280, height_cam = 720, camera = 0)-> tuple:
     cap = cv2.VideoCapture(camera) #* CAMERA SETTINGS
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, width_cam)  #* set the width of the camera
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height_cam)  #* set the height of the camera
+    # Añadir esta línea para ajustar el tamaño del buffer
+    #cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     print(f'Resolution: {width},{height}')
@@ -323,25 +325,18 @@ def frame_settings()-> tuple:
 
 #################* TRACKING ####################
 
-def read_frames(cap,hands,equali = True)-> tuple:
-    """
-    This function reads the frames from the camera.
-    Returns:
-    frame: The frame from the camera.
-    frame_copy: A copy of the frame.
-    frame_gray: The frame in gray scale.
-    frame_equali: The frame with the histogram equalized.
-    results: The results from the hands object.
+def read_frames(cap, hands, equali=True) -> tuple:
+    ret, frame = cap.read()  # Leer frame de la cámara
+    frame_copy = frame.copy()  # Copiar el frame si es válido
+    frame_gray = cv2.cvtColor(frame_copy, cv2.COLOR_BGR2GRAY)  # Cambiar escala de color
     
-    """
-    ret, frame = cap.read()           #* READ FRAMES FROM CAMERA
-    frame_copy = frame.copy()  ### Copy of the FRAME
-    frame_gray = cv2.cvtColor(frame_copy,cv2.COLOR_BGR2GRAY)  #*CHANGE THE SCALE COLOR
-    if equali == True:
-        frame_equali = cv2.equalizeHist(frame_gray)  #*Equalize the histogram
+    if equali:
+        frame_equali = cv2.equalizeHist(frame_gray)  # Ecualización de histograma
     else:
         frame_equali = frame_gray
-    results = hands.process(frame) 
+
+    results = hands.process(frame)  # Procesar el frame con Mediapipe
+    
     return ret, frame, frame_copy, frame_gray, frame_equali, results
 
 
@@ -831,7 +826,7 @@ def imshow(frame)-> None:
     """
     cv2.imshow('frame',frame)
 
-def main_show(frame, SAVED, width, height, roi_save, window_move, df, RECORDING, t1, save_len)-> bool:
+def main_show(frame, SAVED, width, height, roi_save, window_move, df, RECORDING, t1, save_len, show_rois = False)-> bool:
     """
     This function shows the frame from the camera.
     Parameters:
@@ -860,8 +855,8 @@ def main_show(frame, SAVED, width, height, roi_save, window_move, df, RECORDING,
 
         SAVED = save_true(frame, width, height)
     if len(roi_save)>0 and len(roi_save)<3:  #### if there is some roi in roi_save do the for loop
-
-        roi_in_roi(roi_save, window_move)  
+        if show_rois:
+            roi_in_roi(roi_save, window_move)  
     else:
 
         df, RECORDING, t1, save_len, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi = remake_parameters(df, RECORDING, t1, save_len)
@@ -983,4 +978,3 @@ def tru_dinam(DINAMIC, df, RECORDING, t1, save_len, ventana_de_tiempo, full_path
             cv2.imshow('frame', frame)
             cv2.waitKey(0)  # Espera a que se presione cualquier tecla
     return df, RECORDING, t1, save_len, Nimages, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi   
-

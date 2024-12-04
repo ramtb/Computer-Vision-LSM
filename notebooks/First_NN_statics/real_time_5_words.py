@@ -1,6 +1,6 @@
 from modules import keet_database as kdb
 import cv2
-from modules.models_loader import *
+from modules.loaders import *
 import numpy as np
 import time 
 
