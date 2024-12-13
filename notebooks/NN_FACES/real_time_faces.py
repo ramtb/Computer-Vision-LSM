@@ -18,6 +18,8 @@ loader = ModelLoaderFace(model_name='face_model.h5', scaler_name='scaler_faces.p
 model = loader.load_face_model()
 scaler = loader.load_face_scaler()
 dict_labels = {0: 'ENOJO', 1: 'FELIZ', 2: 'NEUTRAL', 3: 'SORPRESA', 4: 'TRISTE'}
+top_features = pd.read_csv('data\\features\\selected_index_faces.csv')
+top = top_features['Selected_Features'].to_list() 
 
 # Camera configuration
 cap = cv2.VideoCapture(1) #### 0 for the default camera, 1 for the external camera
@@ -47,6 +49,7 @@ while True:
     ret, frame = cap.read()
     
     if not ret:
+        print('Error capturing frame')
         break
     
     # Convert frame to RGB for Mediapipe
@@ -86,6 +89,7 @@ while True:
                 np.reshape(positions_y, (468, 1))
             ], axis=1)
             data = data.reshape(1, 936)
+            data = data[:, top]
             data_normalized = scaler.transform(data)
             predictions = model.predict(data_normalized, verbose=0)
             predicted_class = np.argmax(predictions, axis=1)
