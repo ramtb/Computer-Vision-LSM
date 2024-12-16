@@ -1,4 +1,4 @@
-from modules import keet_database as kdb
+import modules.start as st, modules.tracking as tr, modules.reset as res, modules.show as sh
 import cv2
 from modules.loaders import *
 import numpy as np
@@ -19,24 +19,24 @@ delay_time = 0.5
 predicted = False
 #########* CAMERA SETTINGS ###########
 
-cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
+cap, width, height = st.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
                                                                                     #* 0 for the default camera, 1 for the external camera	 
 
 #########* PARAMETERS ###########
 
-imgformat, dataformat, tiempo_de_espera, ventana_de_tiempo = kdb.format(imgformat = 'jpg', dataformat= 'csv', waiting_time= 3, record_time = 2)
+imgformat, dataformat, tiempo_de_espera, ventana_de_tiempo = st.format(imgformat = 'jpg', dataformat= 'csv', waiting_time= 3, record_time = 2)
 
 ##########* Begin parameters ################# 
 
-time_frames, t, t1, timeflag = kdb.time_set()
+time_frames, t, t1, timeflag = st.time_set()
 
-num_hand = kdb.n_hand()
+num_hand = st.n_hand()
 
-mpHands, hands, mpDraw = kdb.hand_medipip(num_hand)
+mpHands, hands, mpDraw = st.hand_medipip(num_hand)
 
-window_move = kdb.wind_move(roi1_x=0.1, roi1_y=0.4, roi2_x=0.1, roi2_y=0.6)
+window_move = st.wind_move(roi1_x=0.1, roi1_y=0.4, roi2_x=0.1, roi2_y=0.6)
 
-cTime, pTime, fps, Ts, time_frames = kdb.frame_settings()
+cTime, pTime, fps, Ts, time_frames = st.frame_settings()
 
 #*FIRTS ARGUMENT FOR ROI 1 AND THE SECOND FOR ROI 2
 
@@ -46,10 +46,10 @@ while True:
     
     current_time = time.time()
     
-    ret, frame, frame_copy, frame_gray, frame_equali, results = kdb.read_frames(cap,hands,equali=True)
+    ret, frame, frame_copy, frame_gray, frame_equali, results = tr.read_frames(cap,hands,equali=True)
     #print(frame.shape)
     
-    roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = kdb.process_hand_landmarks(frame_equali= frame_equali,
+    roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = tr.process_hand_landmarks(frame_equali= frame_equali,
                                                     results= results, width= width, height= height, t= t,tiempo_de_espera= tiempo_de_espera
                                                     ,save_len = None,print_lm=False, size_roi = 0.087, point_save={})       
     if current_time - start_time >= delay_time:  
@@ -71,20 +71,20 @@ while True:
          
     #*######### ENDS IF ##############
         
-    cTime, fps, Ts, pTime, time_frames = kdb.ends_if(cTime, fps, Ts, pTime, time_frames)
+    cTime, fps, Ts, pTime, time_frames = tr.ends_if(cTime, fps, Ts, pTime, time_frames)
         
 
     ################* DRAW RECTANGULOS and text ###############
 
-    kdb.draw_text_and_rectangles(point_save, frame, width, height, fps, draw_rectangules=True,draw_text=True)
+    tr.draw_text_and_rectangles(point_save, frame, width, height, fps, draw_rectangules=True,draw_text=True)
 
     ##############* SHOW THE FRAMES #############
 
-    SAVED = kdb.main_show(frame = frame, SAVED = None, width= width, height=height, roi_save= roi_save, window_move= window_move, df = None, RECORDING = None, t1 = None, save_len = None)
+    SAVED = sh.main_show(frame = frame, SAVED = None, width= width, height=height, roi_save= roi_save, window_move= window_move, df = None, RECORDING = None, t1 = None, save_len = None)
         
     #####* RESET THE LIST ########
 
-    roi_save, point_save= kdb.reset_save(roi_save)
+    roi_save, point_save= res.reset_save(roi_save)
 
     ###* EXIT
         
