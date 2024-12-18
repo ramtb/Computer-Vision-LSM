@@ -9,28 +9,25 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 from modules.loaders import ModelLoaderFace
+from modules.faces.face_positions import FaceMeshDetector
+from modules.config_camera import CameraHandler
 
 
 
 
 ##########* LOAD THE MODEL ################################
-loader = ModelLoaderFace(model_name='face_model_v2.h5', scaler_name='scaler_faces_v2.pkl')
+loader = ModelLoaderFace(model_name='face_model_GERARDO.h5', scaler_name='scaler_faces_GERARDO.pkl')
 model = loader.load_face_model()
 scaler = loader.load_face_scaler()
-dict_labels = {0: 'ENOJO', 1: 'FELIZ', 2: 'NEUTRAL', 3: 'SORPRESA', 4: 'TRISTE'}
-top_features = pd.read_csv('data\\features\\selected_index_faces.csv')
-top = top_features['Selected_Features'].to_list() 
+dict_labels = {0: 'FELIZ', 1: 'NEUTRAL', 2: 'SORPRESA', 3: 'TRISTE'}
+# top_features = pd.read_csv('data\\features\\selected_index_faces.csv')
+# top = top_features['Selected_Features'].to_list() 
 
-# Camera configuration
-cap = cv2.VideoCapture(0) #### 0 for the default camera, 1 for the external camera
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+#####* Camera configuration ################################
+camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
 
-width_screen = 1280
-height_screen = 720
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, width_screen)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height_screen)
-
+camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
+width, height = camera.get_resolution() ### Get the resolution of the camera
 # Time and prediction variables
 start_time = time.time()
 delay_time = 1  # Delay between predictions in seconds
@@ -50,34 +47,12 @@ mp_drawing_styles = mp.solutions.drawing_styles
 while True:
     current_time = time.time()
     # Capture frame
-    ret, frame = cap.read()
+    ret, frame = camera.get_frames()
     
-    if not ret:
-        print('Error capturing frame')
-        break
+    detector = FaceMeshDetector(camera=camera,face_mesh=face_mesh_images)
     
-    # Convert frame to RGB for Mediapipe
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    face_mesh_results = face_mesh_images.process(rgb_frame)
+    _, raw_positions_x, raw_positions_y , flag_face = detector.process_frame(frame)
     
-    if face_mesh_results.multi_face_landmarks:
-        lm = face_mesh_results.multi_face_landmarks[0]  # Only use the first detected face
-        landmarks = lm.landmark
-        # Extract landmark positions
-        positions_x = np.array([landmark.x for landmark in landmarks])
-        positions_y = np.array([landmark.y for landmark in landmarks])
-
-        # Calculate rectangle around the face
-        min_x, min_y = np.min(positions_x*width_screen), np.min(positions_y*height_screen)
-        max_x, max_y = np.max(positions_x*width_screen), np.max(positions_y*height_screen)
-
-        # Draw the rectangle around the face
-        cv2.rectangle(frame, (int(min_x), int(min_y )),
-                      (int(max_x), int(max_y )), (255, 0, 0), 2)
-        
-        flag_face = 1
-    else:
-        flag_face = 0
 
     # Calculate FPS
     cTime = time.time()
@@ -88,15 +63,23 @@ while True:
     # Make a prediction at regular intervals
     if current_time - start_time >= delay_time:  
         if flag_face == 1:
-            data = np.concatenate([
-                np.reshape(positions_x*width, (468, 1)),
-                np.reshape(positions_y*height, (468, 1))
-            ], axis=1)
-            data = data.reshape(1, 936)
+            
+            max_x = np.max(raw_positions_x)
+            min_x = np.min(raw_positions_x)
+            max_y = np.max(raw_positions_y)
+            min_y = np.min(raw_positions_y)
+            
+            positions_x = (raw_positions_x*width).astype(int)
+            positions_y = (raw_positions_y*height).astype(int)
+            
+            roi_positions_x = positions_x*((max_x-min_x)).astype(int)
+            roi_positions_y = positions_y*((max_y-min_y)).astype(int)
+            data =  np.hstack((positions_x, positions_y, roi_positions_x, roi_positions_y))
+            data = data.reshape(1, data.shape[0])
             data = data.astype(int)
-            print(data)
-            print('---'*30)
-            print(data.shape)
+            # print(data)
+            # print('---'*30)
+            # print(data.shape)
             # data = data[:, top]
             data_normalized = scaler.transform(data)
             predictions = model.predict(data_normalized, verbose=0)
@@ -118,5 +101,5 @@ while True:
         break
 
 # Release the capture and close windows
-cap.release()
+camera.release_camera()
 cv2.destroyAllWindows()
