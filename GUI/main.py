@@ -13,6 +13,8 @@ import mediapipe as mp
 import modules.basic_voice_system as bvs
 import modules.keet_database as kdb
 from modules.loaders import ModelLoaderFace, ModelLoaderSigns, RelativeDirToRoot 
+from modules.faces.face_positions import FaceMeshDetector
+from modules.config_camera import CameraHandler
 
 from PySide6.QtWidgets import QApplication
 from gui import GUI
@@ -22,7 +24,6 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 ##### EMOJIS for the GUI #####
 
 emotion_emojis = {
-    'ENOJO': '😠',
     'FELIZ': '😊',
     'NEUTRAL': '😐',
     'SORPRESA': '😲',
@@ -37,17 +38,17 @@ scaler = loader.load_sign_scaler()
 
 dict_labels = {0: 'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'L', 10:'M', 11:'N', 12:'O', 13:'P', 14:'R', 15:'S', 16:'T', 17:'U', 18:'V', 19:'W', 20:'Y'}
 start_time = time.time()
-delay_time = 1.2
+delay_time = 1  # Delay between predictions in seconds
 predicted = False
 phrase = ''
 n_letters = 0
 
 #######* LOAD THE MODEL of faces ################################
 
-loader_faces = ModelLoaderFace(model_name='face_model.h5', scaler_name='scaler_faces.pkl')
+loader_faces = ModelLoaderFace(model_name='face_model_GERARDO.h5', scaler_name='scaler_faces_GERARDO.pkl')
 model_faces = loader_faces.load_face_model()
 scaler_faces = loader_faces.load_face_scaler()
-dict_labels_faces = {0: 'ENOJO', 1: 'FELIZ', 2: 'NEUTRAL', 3: 'SORPRESA', 4: 'TRISTE'}
+dict_labels_faces = {0: 'FELIZ', 1: 'NEUTRAL', 2: 'SORPRESA', 3: 'TRISTE'}
 predicted_face = False
 
 #########* CONFIGURAR GUI ###########
@@ -146,11 +147,13 @@ while app_running:
     #############* REAL TIME MODEL FACE #########
     if current_time - start_time >= delay_time:  
         if flag_face == 1:
-            data_face = np.concatenate([
-                np.reshape(positions_x, (468, 1)),
-                np.reshape(positions_y, (468, 1))
-            ], axis=1)
-            data_face = data_face.reshape(1, 936)
+            positions_x = (positions_x*width).astype(int)
+            positions_y = (positions_y*height).astype(int)
+            roi_positions_x = positions_x*((max_x-min_x)).astype(int)
+            roi_positions_y = positions_y*((max_y-min_y)).astype(int)
+            data =  np.hstack((positions_x, positions_y, roi_positions_x, roi_positions_y))
+            data = data.reshape(1, data.shape[0])
+            data_face = data.astype(int)
             data_normalized_face = scaler_faces.transform(data_face)
             predictions_face = model_faces.predict(data_normalized_face, verbose=0)
             predicted_class_face = np.argmax(predictions_face, axis=1)
