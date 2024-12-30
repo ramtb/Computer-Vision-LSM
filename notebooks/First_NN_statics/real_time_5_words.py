@@ -1,4 +1,4 @@
-import modules.start as st, modules.tracking as tr, modules.reset as res, modules.show as sh
+import modules.mod_NNs.start as st, modules.mod_NNs.tracking as tr, modules.mod_NNs.reset as res, modules.mod_NNs.show as sh
 import cv2
 from modules.loaders import *
 import numpy as np

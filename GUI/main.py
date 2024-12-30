@@ -10,8 +10,8 @@ import numpy as np
 import time 
 import mediapipe as mp
 
-import modules.basic_voice_system as bvs
-import modules.start as st, modules.tracking as tr, modules.reset as res, modules.show as sh
+import modules.mod_main.basic_voice_system as bvs
+import modules.mod_main.start as st, modules.mod_main.tracking as tr, modules.mod_main.reset as res, modules.mod_main.show as sh
 from modules.loaders import ModelLoaderFace, ModelLoaderSigns, RelativeDirToRoot 
 
 from PySide6.QtWidgets import QApplication
