@@ -9,6 +9,7 @@ import numpy as np
 import time 
 import mediapipe as mp
 import modules.mod_svf.basic_voice_system as bvs
+from modules.config_camera import CameraHandler
 from modules.loaders import ModelLoaderSigns, ModelLoaderFace
 
 
@@ -36,8 +37,11 @@ predicted_face = False
 
 #########* CAMERA SETTINGS ###########
 
-cap, width, height = st.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
-                                                                                    #* 0 for the default camera, 1 for the external camera	 
+camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
+
+camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
+width, height = camera.get_resolution() ### Get the resolution of the camera
+print('camera resolution',width, height)
 
 ##########* Begin parameters ################# 
 
@@ -62,7 +66,7 @@ while True:
     
     current_time = time.time()
     
-    ret, frame, frame_copy, frame_gray, frame_equali, results = tr.read_frames(cap,hands,equali=True)
+    ret, frame, frame_copy, frame_gray, frame_equali, results = tr.read_frames(camera,hands,equali=True)
     #######* HAND EXTRACTION ########
     roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = tr.process_hand_landmarks(frame_equali= frame_equali,
                                                     results= results, width= width, height= height, t= t,tiempo_de_espera= 3
@@ -158,5 +162,5 @@ while True:
         
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break   #press q for exit
-cap.release()
+camera.release_camera()
 cv2.destroyAllWindows()
