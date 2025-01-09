@@ -1,3 +1,6 @@
+#### Archivos pesados (+100MB)
+positions_FACES_v2.h5
+positions_FACES_GERARDO.h5
 # Entornos virtuales
 venv/
 .env/
