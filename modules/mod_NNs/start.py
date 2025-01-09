@@ -27,7 +27,7 @@ def camera_settings(width_cam = 1280, height_cam = 720, camera = 0)-> tuple:
     """
 
     cap = cv2.VideoCapture(camera) #* CAMERA SETTINGS
-    #print('hola',cap)
+   
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, width_cam)  #* set the width of the camera
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height_cam)  #* set the height of the camera
     # Añadir esta línea para ajustar el tamaño del buffer
