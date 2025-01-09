@@ -79,17 +79,17 @@ gui.close_application.connect(close_application)
 cap, width, height = st.camera_settings(width_cam= 1280, height_cam= 720, camera=1) #* Width and height of the camera
                                                                                     #* 0 for the default camera, 1 for the external camera	 
 
-#########* PARAMETERS ###########
-
-imgformat, dataformat, tiempo_de_espera, ventana_de_tiempo = st.format(imgformat = 'jpg', dataformat= 'csv', waiting_time= 3, record_time = 2)
-
 ##########* Begin parameters ################# 
 
-time_frames, t, t1, timeflag = st.time_set()
+time_frames, t= st.time_set()
 
 num_hand = 1
 
-mpHands, hands, mpDraw = st.hand_medipip(num_hand)
+mpHands = mp.solutions.hands
+
+hands = mpHands.Hands(static_image_mode=False, max_num_hands= num_hand, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
+mpDraw = mp.solutions.drawing_utils
 
 window_move = st.wind_move(roi1_x=0.1, roi1_y=0.4, roi2_x=0.1, roi2_y=0.6)
 
@@ -118,7 +118,7 @@ while app_running:
     
     #######* HAND EXTRACTION ########
     roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = tr.process_hand_landmarks(frame_equali= frame_equali,
-                                                    results= results, width= width, height= height, t= t,tiempo_de_espera= tiempo_de_espera
+                                                    results= results, width= width, height= height, t= t,tiempo_de_espera= 3
                                                     ,save_len = None,print_lm=False, size_roi = 0.087, point_save={})       
     
     gui.update_led_status(flag == 1)

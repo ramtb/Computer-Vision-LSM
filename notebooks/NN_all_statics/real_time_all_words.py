@@ -30,7 +30,7 @@ cap, width, height = st.camera_settings(width_cam= 1280, height_cam= 720, camera
 
 ##########* Begin parameters ################# 
 
-time_frames, t, t1, timeflag = st.time_set()
+time_frames, t = st.time_set()
 num_hand = 1
 mpHands = mp.solutions.hands
 hands = mpHands.Hands(static_image_mode=False, max_num_hands= num_hand, min_detection_confidence=0.5, min_tracking_confidence=0.5)

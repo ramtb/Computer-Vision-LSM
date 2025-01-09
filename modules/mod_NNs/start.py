@@ -52,9 +52,7 @@ def time_set()-> tuple:
     """
     time_frames = time.time()
     t = 0.0
-    t1 = 0
-    timeflag = False
-    return time_frames, t, t1, timeflag
+    return time_frames, t
 
 def wind_move(roi1_x = 0.4,roi1_y =0.3, roi2_x = 0.6, roi2_y = 0.3 )-> list:
     """
