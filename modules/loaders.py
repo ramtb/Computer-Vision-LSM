@@ -1,8 +1,4 @@
 import os
-from tensorflow.keras.models import load_model
-from joblib import load
-import h5py as h5
-
 
 class RelativeDirToRoot:
     def __init__(self, root_dir: str = 'Computer-vision-LSM'):
@@ -45,9 +41,15 @@ class RelativeDirToRoot:
         """
         path = os.path.join(*(['..' for _ in range(self._get_relative_position_to_root())]) + [path])
         return path
+    
+    def generate_dynamics_signs_path(self, relative_position_to_root: str, sign: str, number: str):
+        """
+        Method to generate paths for the dynamics signs based on the relative position to the root.
+        """
+        dynamic_path = f'data{os.sep}dataset{os.sep}DINAMICAS{os.sep}{sign}{os.sep}{sign}{number}.csv'
+        dynamic_dir = os.path.join(*(['..' for _ in range(relative_position_to_root)]) + [dynamic_path])
 
-
-
+        return dynamic_dir
 
 
 class ModelLoaderSigns(RelativeDirToRoot):
@@ -60,24 +62,32 @@ class ModelLoaderSigns(RelativeDirToRoot):
 
         super().__init__(root_dir)
         relative_position_to_root = self._get_relative_position_to_root()
-        
-        self.model_path_signs, self.scaler_path_signs = self._generate_model_paths(
+        if scaler_name is None:
+            self.model_path_signs, _ = self._generate_model_paths(
+                relative_position_to_root, model_name, '', 'signs')
+        else:    
+            self.model_path_signs, self.scaler_path_signs = self._generate_model_paths(
             relative_position_to_root, model_name, scaler_name, 'signs')
 
     def load_sign_model(self):
         if not os.path.exists(self.model_path_signs):
             raise FileNotFoundError(f"Model not found at path: {self.model_path_signs}")
+        
+        # Import only when needed
+        from tensorflow.keras.models import load_model
+        
         self.model = load_model(self.model_path_signs)
         return self.model
 
     def load_sign_scaler(self):
         if not os.path.exists(self.scaler_path_signs):
             raise FileNotFoundError(f"Scaler not found at path: {self.scaler_path_signs}")
+        
+        # Import only when needed
+        from joblib import load
+        
         self.scaler = load(self.scaler_path_signs)
         return self.scaler
-
-
-
 
 
 class ModelLoaderFace(RelativeDirToRoot):
@@ -97,15 +107,24 @@ class ModelLoaderFace(RelativeDirToRoot):
     def load_face_model(self):
         if not os.path.exists(self.model_path_faces):
             raise FileNotFoundError(f"Model not found at path: {self.model_path_faces}")
+        
+        # Import only when needed
+        from tensorflow.keras.models import load_model
+        
         self.model = load_model(self.model_path_faces)
         return self.model
 
     def load_face_scaler(self):
         if not os.path.exists(self.scaler_path_faces):
             raise FileNotFoundError(f"Scaler not found at path: {self.scaler_path_faces}")
+        
+        # Import only when needed
+        from joblib import load
+        
         self.scaler = load(self.scaler_path_faces)
         return self.scaler
-    
+
+
 class LoadDataset(RelativeDirToRoot):
     """ 
     Class to load h5 files
@@ -119,5 +138,30 @@ class LoadDataset(RelativeDirToRoot):
     def load_h5(self):
         if not os.path.exists(self.h5_path):
             raise FileNotFoundError(f"Data not found at path: {self.h5_path}")
+        
+        # Import only when needed
+        import h5py as h5
+        
         self.h5_file = h5.File(self.h5_path, 'r')
         return self.h5_file
+
+
+class LoadDynamicSign(RelativeDirToRoot):
+    """
+    Class to load dynamic signs
+    """
+    def __init__(self, sign_file: str, number: str, root_dir: str = 'Computer-vision-LSM'):
+        super().__init__(root_dir)
+        self.sign_file = sign_file
+        relative_position_to_root = self._get_relative_position_to_root()
+        self.sign_path = self.generate_dynamics_signs_path(relative_position_to_root, sign_file, number)
+            
+    def load_dynamic_sign(self):
+        if not os.path.exists(self.sign_path):
+            raise FileNotFoundError(f"Data not found at path: {self.sign_path}")
+        
+        # Import only when needed
+        import pandas as pd
+        
+        self.df = pd.read_csv(self.sign_path, header=0)
+        return self.df
