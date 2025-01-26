@@ -8,7 +8,7 @@ from modules.config_camera import CameraHandler
 from modules.positions.hand_positions import *
 import os
 
-sign = 'SI'
+sign = 'HOLA'
 
 
 ################################
@@ -19,10 +19,15 @@ if not os.path.exists(base_path):
     os.makedirs(base_path)
 
 last_element = os.listdir(base_path)
+print(last_element)
 if last_element:
-    last_element = sorted(last_element)[-1]
-    last_element = last_element.split('.csv')
-    last_element = int(last_element[0][-1])
+    last_element = sorted(last_element)
+    last_element = [x.split('.')[0] for x in last_element]
+    last_element = [x.split(sign)[1] for x in last_element]
+    last_element = [int(x) for x in last_element]
+    last_element = max(last_element)
+    print(last_element)
+   
 else:
     last_element = 0
 count_last_element = 1
