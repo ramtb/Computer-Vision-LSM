@@ -75,7 +75,7 @@ gui.close_application.connect(close_application)
 
 #########* CAMERA SETTINGS ###########
 
-cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=1) #* Width and height of the camera
+cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
                                                                                     #* 0 for the default camera, 1 for the external camera	 
 
 #########* PARAMETERS ###########

@@ -1,7 +1,17 @@
 QWidget {
-    background-color: #F5F5F5;
+    background-color: #D5D8DC;
     font-family: 'Segoe UI', sans-serif;
     color: #333333;
+}
+
+QMainWindow {
+    background-color: #D5D8DC; /* Fondo gris oscuro */
+    
+}
+
+QMenuBar {
+    background-color:rgb(14, 74, 66);
+    color: white;
 }
 
 QLabel {
@@ -11,7 +21,7 @@ QLabel {
 
 QGroupBox {
     background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
+    border: 1px solid rgb(3, 131, 110);
     border-radius: 5px;
     padding: 10px;
     font-size: 14px;
@@ -19,21 +29,21 @@ QGroupBox {
 }
 
 QPushButton {
-    background-color: #FFFFFF;
-    border: 2px solid #FFA500;
+    background-color: rgb(3, 131, 110);
+    border: 0px solid rgba(0, 0, 0, 0.39);
     border-radius: 10px;
     padding: 10px;
     font-size: 16px;
-    color: #333333;
+    color: #FFFFFF;
 }
 
 QPushButton:hover {
-    background-color: #FFA500;
+    background-color: rgb(7, 176, 128);
     color: #FFFFFF;
 }
 
 QPushButton:pressed {
-    background-color: #FF8C00;
+    background-color: rgb(3, 85, 51);
     color: #FFFFFF;
 }
 
