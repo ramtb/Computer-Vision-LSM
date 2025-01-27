@@ -427,16 +427,28 @@ class Glosario(QWidget):
 
         # Añadir imágenes y etiquetas manualmente (Señas Estáticas)
         self.static_images = []
-        self.add_static_image("A", "GUI\\assets\\images\\cat.png", 0, 0)
-        self.add_static_image("B", "GUI\\assets\\images\\cat.png", 0, 1)
-        self.add_static_image("C", "GUI\\assets\\images\\cat.png", 0, 2)
-        self.add_static_image("D", "GUI\\assets\\images\\cat.png", 0, 3)
-        self.add_static_image("E", "GUI\\assets\\images\\cat.png", 0, 4)
-        self.add_static_image("F", "GUI\\assets\\images\\cat.png", 2, 0)
-        self.add_static_image("G", "GUI\\assets\\images\\cat.png", 2, 1)
-        self.add_static_image("H", "GUI\\assets\\images\\cat.png", 2, 2)
-        self.add_static_image("O", "GUI\\assets\\images\\cat.png", 2, 3)
-        self.add_static_image("P", "GUI\\assets\\images\\cat.png", 2, 4)
+        self.add_static_image("A", "GUI\\assets\\images\\Static\\A.jpg", 0, 0)
+        self.add_static_image("B", "GUI\\assets\\images\\Static\\B.jpg", 0, 1)
+        self.add_static_image("C", "GUI\\assets\\images\\Static\\C.jpg", 0, 2)
+        self.add_static_image("D", "GUI\\assets\\images\\Static\\D.jpg", 0, 3)
+        self.add_static_image("E", "GUI\\assets\\images\\Static\\E.jpg", 0, 4)
+        self.add_static_image("F", "GUI\\assets\\images\\Static\\F.jpg", 2, 0)
+        self.add_static_image("G", "GUI\\assets\\images\\Static\\G.jpg", 2, 1)
+        self.add_static_image("H", "GUI\\assets\\images\\Static\\H.jpg", 2, 2)
+        self.add_static_image("I", "GUI\\assets\\images\\Static\\I.jpg", 2, 3)
+        self.add_static_image("L", "GUI\\assets\\images\\Static\\L.jpg", 2, 4)
+        self.add_static_image("M", "GUI\\assets\\images\\Static\\M.jpg", 4, 0)
+        self.add_static_image("N", "GUI\\assets\\images\\Static\\N.jpg", 4, 1)
+        self.add_static_image("O", "GUI\\assets\\images\\Static\\O.jpg", 4, 2)
+        self.add_static_image("P", "GUI\\assets\\images\\Static\\P.jpg", 4, 3)
+        self.add_static_image("R", "GUI\\assets\\images\\Static\\R.jpg", 4, 4)
+        self.add_static_image("S", "GUI\\assets\\images\\Static\\S.jpg", 6, 0)
+        self.add_static_image("T", "GUI\\assets\\images\\Static\\T.jpg", 6, 1)
+        self.add_static_image("U", "GUI\\assets\\images\\Static\\U.jpg", 6, 2)
+        self.add_static_image("V", "GUI\\assets\\images\\Static\\V.jpg", 6, 3)
+        self.add_static_image("W", "GUI\\assets\\images\\Static\\W.jpg", 6, 4)
+        self.add_static_image("Y", "GUI\\assets\\images\\Static\\Y.jpg", 8, 0)
+        
 
 
         # Línea divisoria
