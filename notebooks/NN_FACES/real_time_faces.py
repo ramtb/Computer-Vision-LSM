@@ -24,7 +24,7 @@ dict_labels = {0: 'FELIZ', 1: 'NEUTRAL', 2: 'SORPRESA', 3: 'TRISTE'}
 # top = top_features['Selected_Features'].to_list() 
 
 #####* Camera configuration ################################
-camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
+camera = CameraHandler(camera_index=0, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
 
 camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
 width, height = camera.get_resolution() ### Get the resolution of the camera

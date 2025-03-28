@@ -17,7 +17,7 @@ from modules.faces.face_positions import FaceMeshDetector
 from modules.config_camera import CameraHandler
 
 from PySide6.QtWidgets import QApplication
-from gui import GUI
+from gui_español import GUI 
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -62,7 +62,7 @@ with open(style_path, "r") as qss_file:
 
 app.setStyleSheet(qss_style)
 
-gui = GUI()
+gui = GUI(parent=None)
 gui.show()
 
 def close_application():
@@ -76,7 +76,7 @@ gui.close_application.connect(close_application)
 
 #########* CAMERA SETTINGS ###########
 
-cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
+cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=1) #* Width and height of the camera
                                                                                     #* 0 for the default camera, 1 for the external camera	 
 
 #########* PARAMETERS ###########
