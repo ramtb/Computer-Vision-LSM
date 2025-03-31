@@ -154,9 +154,7 @@ def draw_text_and_rectangles(point_save,frame, width, height, fps,draw_rectangul
     point_save: The list with the points of the ROIs.
     
     """
-    cv2.putText(frame, 'Sign Language recognition', (int(width*0.05), int(height*0.05)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     cv2.putText(frame, 'FPS = ' + str(int(fps)), (int(width*0.05), int(height*0.1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-    cv2.putText(frame, 'Press q to exit', (int(width*0.7), int(height*0.05)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
     if np.any(point_save):
         if draw_rectangules == True:

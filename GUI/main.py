@@ -33,12 +33,12 @@ emotion_emojis = {
 
 
 ##########* LOAD THE MODEL ################################
-loader = ModelLoaderSigns(model_name='all_statics_model.h5', scaler_name='all_statics_scaler.pkl')
+loader = ModelLoaderSigns(model_name='all_statics_model2.h5', scaler_name='scaler.pkl')
 model = loader.load_sign_model()
 scaler = loader.load_sign_scaler()
 
 dict_labels = {0: 'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'L', 10:'M', 11:'N', 12:'O', 13:'P', 14:'R', 15:'S', 16:'T', 17:'U', 18:'V', 19:'W', 20:'Y'}
-delay_time = 1
+delay_time = 1.25
 predicted = False
 start_time = time.time()
 phrase = ''
@@ -75,7 +75,7 @@ camera = CameraHandler(camera_index=0, width_screen=1280, height_screen=720) ###
 
 camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
 width, height = camera.get_resolution() ### Get the resolution of the camera
-print('camera resolution',width, height)
+print('camera resolution',width, height)  
 
 
 ##########* Begin parameters ################# 
@@ -168,18 +168,17 @@ while main.close_all_windows == False:
                 emotion_emoji = emotion_emojis.get(predictions_face, '')
             # start_time = current_time
         # Mostrar la predicción si se ha realizado
-        if predicted_face:
-            cv2.putText(frame, predictions_face, (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 2)
+        # if predicted_face:
+        #     cv2.putText(frame, predictions_face, (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 2)
         
         #############* REAL TIME MODEL HAND #########
         if  current_time - start_time >= delay_time:
-            print(current_time - start_time)
+            # print(current_time - start_time)
             if is_there_hand == True:
                 # start = time.time()
                 ###calculare max and min of x and y
                 
                 
-                cv2.putText(frame, "Hand detected", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2.5, (0, 255, 0), 2)
                 # Paso 1: Calcular las posiciones escaladas
                 positions_x = (raw_x * width).astype(int)
                 positions_y = (raw_y * height).astype(int)
@@ -191,24 +190,22 @@ while main.close_all_windows == False:
                 max_y = np.max(positions_y)
                 size_roi = 0.087  # Tamaño de la ROI (20% del tamaño de la mano)
 
-                # Paso 3: Ajustar los límites de la ROI usando el tamaño de la ROI
-                x_min = min_x - int(width* size_roi)
-                y_min = min_y - int( height* size_roi)
-                x_max = max_x + int(width* size_roi)
-                y_max = max_y + int(height * size_roi)
+                roi_factor_x =  raw_x*(max_y + int(height * size_roi) - (min_y - int( height* size_roi)))
                 
-                roi_positions_x = (positions_x*(y_max-y_min)).astype(int)
-                roi_positions_y = (positions_y*(x_max - x_min)).astype(int)
-                print(x_max-x_min, y_max-y_min)
+                roi_factor_y = raw_y*(max_x + int(width* size_roi) - (min_x - int(width* size_roi)))
+               
+                roi_positions_x = (raw_x*(roi_factor_x)).astype(int)
+                roi_positions_y = (raw_y*(roi_factor_y)).astype(int)
                 if n_letters == 0:
                     phrase = ''
                     n_letters += 1
                 data = [np.reshape(positions_x, (21, 1)), 
                         np.reshape(roi_positions_x, (21, 1)), np.reshape(positions_y, (21, 1)), 
                         np.reshape(roi_positions_y, (21, 1))]
-
+            
                 data = np.concatenate(data,axis=1)
                 data = data.reshape(1, 84)
+                # print(data)
                 data_normalized = scaler.transform(data)
                 predictions = model.predict(data_normalized, verbose=1)
                 predicted_class = np.argmax(predictions, axis=1)
@@ -234,36 +231,27 @@ while main.close_all_windows == False:
                     predicted = False
                     n_letters = 0
                                 
-        if predicted == True:
-            cv2.putText(frame, prediction, (int(x_max), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
-            cv2.putText(frame, phrase , (int(max_x), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
+        # if predicted == True:
+        #     cv2.putText(frame, prediction, (int(x_max), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
+        #     cv2.putText(frame, phrase , (int(max_x), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
                     
             
         
         #*######### ENDS IF ##############
             
         cTime, fps, Ts, pTime, time_frames = tr.ends_if(cTime, fps, Ts, pTime, time_frames)
-            
+        
 
         ################* DRAW RECTANGULOS and text ###############
-
-        tr.draw_text_and_rectangles(max_min, frame, width, height, fps,
-                                    draw_rectangles=True,draw_text=True, is_there_hand=is_there_hand,)
-
-        ##############* SHOW THE FRAMES #############
+        if is_there_hand:
+            cv2.rectangle(frame, pt1=(int(min_x), int(min_y)), pt2=(int(max_x), int(max_y)), color=(100, 100, 255), thickness=3)
+            # cv2.putText(frame, "Hand detected", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2.5, (0, 255, 0), 2)
 
         cv2.imshow('HAND Detection', frame)
         cv2.waitKey(1)
 
         max_min = [0,0,0,0]
-    #     print(gui.destroy_gui, app_running)
-    #     if gui.destroy_gui == True:
-    #         gui.destroy_gui = False
-    #         app_running = False
-    #         camera.release_camera()
-    #         cv2.destroyAllWindows()
     if main.destroy_gui == True:
         cv2.destroyAllWindows()
-    # print(gui.destroy_gui, app_running)
 
 camera.release_camera()

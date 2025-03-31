@@ -10,8 +10,7 @@ import time
 from modules.loaders import ModelLoaderSigns
 from modules.config_camera import CameraHandler
 import mediapipe as mp
-
-
+from modules import keet_database as kdb
 
 ############################################################################################################*
 
@@ -26,10 +25,9 @@ delay_time = 0.5
 predicted = False
 #########* CAMERA SETTINGS ###########
 
-camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
+cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
+                                                                                    #* 0 for the default camera, 1 for the external camera	 
 
-camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
-width, height = camera.get_resolution() ### Get the resolution of the camera
 print('camera resolution',width, height)
 
 ##########* Begin parameters ################# 
@@ -50,9 +48,8 @@ while True:
     
     current_time = time.time()
     
-    ret, frame = camera.get_frames()
-    #print(frame.shape)
     
+    ret, frame, frame_copy, frame_gray, frame_equali, results = kdb.read_frames(cap,hands,equali=True)
     roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = tr.process_hand_landmarks(frame_equali= frame_equali,
                                                     results= results, width= width, height= height, t= t,tiempo_de_espera= 3
                                                     ,save_len = None,print_lm=False, size_roi = 0.087, point_save={})       
