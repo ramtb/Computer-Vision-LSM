@@ -16,31 +16,31 @@ class MainWindow(QMainWindow):
     def __init__(self,app):
         super().__init__()
         self.app = app
-        self.setWindowTitle("Keet: Breaking barriers of silence")
+        self.setWindowTitle("Keet: Rompiendo barreras de silencio")
         self.resize(854, 480)
         appIcon = QIcon("GUI\\assets\\images\\keet.svg")
         self.setWindowIcon(appIcon)
         menu = self.menuBar()
-        menu.addMenu("Computer vision system for sign language recognition.")
+        menu.addMenu("Reconocimiento de la LSM y su vocalización")
 
-        self.btn1 = QPushButton("Start", self)
+        self.btn1 = QPushButton("Iniciar", self)
         self.btn1.setToolTip("Runs the translation system")
         self.btn1.clicked.connect(self.open_GUI)
         self.btn1.setCursor(Qt.PointingHandCursor)
 
-        self.btn2 = QPushButton("Glossary", self)
+        self.btn2 = QPushButton("Glosario", self)
         self.btn2.setToolTip("See the sign language glossary")
         self.btn2.clicked.connect(self.open_glosario)
         self.btn2.setCursor(Qt.PointingHandCursor)
-        self.btn3 = QPushButton("Train face models", self)
-        self.btn3.clicked.connect(self.open_training)
-        self.btn3.setToolTip("Train facial expression recognition modelss")
-        self.btn3.setCursor(Qt.PointingHandCursor)
-        self.btn4 = QPushButton("Credits", self)
+        # self.btn3 = QPushButton("Modelos de emociones", self)
+        # self.btn3.clicked.connect(self.open_training)
+        # self.btn3.setToolTip("Train facial expression recognition modelss")
+        # self.btn3.setCursor(Qt.PointingHandCursor)
+        self.btn4 = QPushButton("Creditos", self)
         self.btn4.setToolTip("View system credits")
         self.btn4.clicked.connect(self.open_creditos)
         self.btn4.setCursor(Qt.PointingHandCursor)
-        self.btn5 = QPushButton("Exit", self)
+        self.btn5 = QPushButton("Salir", self)
         self.btn5.setToolTip("Exit the system")
         self.btn5.clicked.connect(self.quit_app)
         self.btn5.setCursor(Qt.PointingHandCursor)
@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         # Calcular las posiciones dinámicas
         self.btn1.setGeometry((ancho - 200)//2, inicio_y, 200, 80)  # 10% de la ventana
         self.btn2.setGeometry((ancho - 200)//2, inicio_y + 100, 200, 80)  # 70% ancho, 10% alto
-        self.btn3.setGeometry((ancho - 200)//2, inicio_y + 200, 200, 80)  # 30% ancho, 50% alto
+        # self.btn3.setGeometry((ancho - 200)//2, inicio_y + 200, 200, 80)  # 30% ancho, 50% alto
         self.btn4.setGeometry(int(ancho*0.01), int(alto * 0.99- 80), 200, 80)
         self.btn5.setGeometry(int(ancho*0.99 - 200), int(alto * 0.99- 80), 200, 80)
         
@@ -180,11 +180,11 @@ class Creditos(QWidget):
         button_layout = QHBoxLayout()
         button_layout.setContentsMargins(0, 10, 0, 10)
 
-        back_button = QPushButton("Return") 
+        back_button = QPushButton("Regresar") 
         back_button.clicked.connect(self.show_parent)
         back_button.setToolTip("Return to the main menu")
         back_button.setCursor(Qt.PointingHandCursor)
-        close_app_button = QPushButton("Exit")
+        close_app_button = QPushButton("Salir")
         close_app_button.clicked.connect(self.quit_app)
         close_app_button.setToolTip("Exit the system")
         close_app_button.setCursor(Qt.PointingHandCursor)
@@ -233,7 +233,7 @@ class GUI(QWidget):
 
     def initUI(self):
         # Configurar la ventana principal
-        self.setWindowTitle('Keet: Breaking barriers of silence')
+        self.setWindowTitle('Keet: Rompiendo barreras de silencio')
         screen_geometry = QApplication.primaryScreen().availableGeometry()
         screen_width = screen_geometry.width()
         screen_height = screen_geometry.height()
@@ -277,7 +277,7 @@ class GUI(QWidget):
         main_layout.addItem(QSpacerItem(20, 20))
 
         # Crear área de historial
-        history_group_box = QGroupBox("Translation history", self)
+        history_group_box = QGroupBox("Historial de traducciones", self)
 
         history_layout = QVBoxLayout()
 
@@ -300,7 +300,7 @@ class GUI(QWidget):
 
         main_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        self.main_label = QLabel('Waiting ...', self)
+        self.main_label = QLabel('Esperando ...', self)
         self.main_label.setAlignment(Qt.AlignCenter)
         self.main_label.setStyleSheet("font-size: 35px; ")
 
@@ -326,19 +326,19 @@ class GUI(QWidget):
 
         button_layout = QHBoxLayout()
         
-        self.clear_history_button = QPushButton('Delete history', self)
+        self.clear_history_button = QPushButton('Borrar historial', self)
         self.clear_history_button.clicked.connect(self.clear_history)
         self.clear_history_button.setToolTip("Delete the translation history")
         self.clear_history_button.setCursor(Qt.PointingHandCursor)
         button_layout.addWidget(self.clear_history_button)
 
-        self.return_button = QPushButton('Return', self)
+        self.return_button = QPushButton('Regresar', self)
         self.return_button.clicked.connect(self.show_parent)
         self.return_button.setToolTip("Return to the main menu")
         self.return_button.setCursor(Qt.PointingHandCursor)
         button_layout.addWidget(self.return_button)
 
-        self.close_app_button = QPushButton('Exit', self)
+        self.close_app_button = QPushButton('Salir', self)
         self.close_app_button.clicked.connect(self.quit_app)
         self.close_app_button.setToolTip("Exit the system")
         self.close_app_button.setCursor(Qt.PointingHandCursor)
@@ -486,10 +486,10 @@ class Glosario(QWidget):
 
         # Botones de navegación
         button_layout = QVBoxLayout()
-        back_button = QPushButton("Return")
+        back_button = QPushButton("Regresar")
         back_button.setCursor(Qt.PointingHandCursor)
-        back_button.setToolTip("Return to the main menu")
-        exit_button = QPushButton("Exit")
+        back_button.setToolTip("Regresar al menú principal")
+        exit_button = QPushButton("Salir")
         exit_button.setCursor(Qt.PointingHandCursor)
         exit_button.setToolTip("Exit the system")
 
@@ -569,7 +569,7 @@ class training(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.setWindowTitle("Train face models")
+        self.setWindowTitle("Modelos de emociones")
         appIcon = QIcon("GUI\\assets\\images\\keet.svg")
         self.setWindowIcon(appIcon)
         screen_geometry = QApplication.primaryScreen().availableGeometry()
@@ -598,7 +598,7 @@ class training(QWidget):
         self.sekkansvg.setGeometry(width * 2, 10, width * 2 - 10, width - 10)
 
         # Etiqueta principal
-        self.instruction_label = QLabel("Select an emotion ", self)
+        self.instruction_label = QLabel("Seleccionar emociones ", self)
         self.instruction_label.setFont(QFont("Helvetica Neue", 14))
         self.instruction_label.setAlignment(Qt.AlignCenter)
         self.instruction_label.setGeometry(10, 150, 400, 30)
@@ -694,7 +694,7 @@ class training(QWidget):
         """)
 
         self.text_input = QLineEdit( self)
-        self.text_input.setPlaceholderText("Write your name here:")
+        self.text_input.setPlaceholderText("Escribe tu nombre aquí:")
         self.text_input.setGeometry(10, 300, 400, 40)
         self.text_input.setStyleSheet("""
             QLineEdit {
@@ -710,13 +710,13 @@ class training(QWidget):
         """)
 
         # Botón "Entrenar"
-        self.train_button = QPushButton("Train", self)
+        self.train_button = QPushButton("Entrenar", self)
         self.train_button.setFont(QFont("Helvetica Neue", 14))
         self.train_button.setGeometry(150, 350, 120, 40)
         self.train_button.setCursor(Qt.PointingHandCursor)
-        self.train_button.setToolTip("Train the model")
+        self.train_button.setToolTip("Entrenar el modelo")
 
-        self.close_button = QPushButton("Return", self)
+        self.close_button = QPushButton("Regresar", self)
         self.close_button.setGeometry(10, 540, 100, 50)
         self.close_button.clicked.connect(self.show_parent)
         self.close_button.setToolTip("Return to the main menu")

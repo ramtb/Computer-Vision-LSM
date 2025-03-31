@@ -1,4 +1,4 @@
-import modules.keet_database as kdb
+import modules.mod_svf.start as st, modules.mod_svf.tracking as tr, modules.mod_svf.reset as res, modules.mod_svf.show as sh
 import cv2
 import pandas as pd
 import tensorflow as tf
@@ -8,7 +8,8 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import time 
 import mediapipe as mp
-import modules.basic_voice_system as bvs
+import modules.mod_svf.basic_voice_system as bvs
+from modules.config_camera import CameraHandler
 from modules.loaders import ModelLoaderSigns, ModelLoaderFace
 
 
@@ -36,24 +37,21 @@ predicted_face = False
 
 #########* CAMERA SETTINGS ###########
 
-cap, width, height = kdb.camera_settings(width_cam= 1280, height_cam= 720, camera=0) #* Width and height of the camera
-                                                                                    #* 0 for the default camera, 1 for the external camera	 
+camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
 
-#########* PARAMETERS ###########
-
-imgformat, dataformat, tiempo_de_espera, ventana_de_tiempo = kdb.format(imgformat = 'jpg', dataformat= 'csv', waiting_time= 3, record_time = 2)
+camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
+width, height = camera.get_resolution() ### Get the resolution of the camera
+print('camera resolution',width, height)
 
 ##########* Begin parameters ################# 
 
-time_frames, t, t1, timeflag = kdb.time_set()
-
+time_frames, t = st.time_set()
 num_hand = 1 ### change this for the number of hands to detect
-
-mpHands, hands, mpDraw = kdb.hand_medipip(num_hand)
-
-window_move = kdb.wind_move(roi1_x=0.1, roi1_y=0.4, roi2_x=0.1, roi2_y=0.6) #*FIRTS ARGUMENT FOR ROI 1 AND THE SECOND FOR ROI 2
-
-cTime, pTime, fps, Ts, time_frames = kdb.frame_settings()
+mpHands = mp.solutions.hands
+hands = mpHands.Hands(static_image_mode=False, max_num_hands= num_hand, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+mpDraw = mp.solutions.drawing_utils
+window_move = st.wind_move(roi1_x=0.1, roi1_y=0.4, roi2_x=0.1, roi2_y=0.6) #*FIRTS ARGUMENT FOR ROI 1 AND THE SECOND FOR ROI 2
+cTime, pTime, fps, Ts, time_frames = st.frame_settings()
 
 #####* MEDIAPIPE FACE MESH ########
 
@@ -68,10 +66,10 @@ while True:
     
     current_time = time.time()
     
-    ret, frame, frame_copy, frame_gray, frame_equali, results = kdb.read_frames(cap,hands,equali=True)
+    ret, frame, frame_copy, frame_gray, frame_equali, results = tr.read_frames(camera,hands,equali=True)
     #######* HAND EXTRACTION ########
-    roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = kdb.process_hand_landmarks(frame_equali= frame_equali,
-                                                    results= results, width= width, height= height, t= t,tiempo_de_espera= tiempo_de_espera
+    roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = tr.process_hand_landmarks(frame_equali= frame_equali,
+                                                    results= results, width= width, height= height, t= t,tiempo_de_espera= 3
                                                     ,save_len = None,print_lm=False, size_roi = 0.087, point_save={})       
     ################* FACE MESH ############	
     face_mesh_results = face_mesh_images.process(frame)
@@ -145,24 +143,24 @@ while True:
 
     ##########* ENDS IF ##############
         
-    cTime, fps, Ts, pTime, time_frames = kdb.ends_if(cTime, fps, Ts, pTime, time_frames)
+    cTime, fps, Ts, pTime, time_frames = tr.ends_if(cTime, fps, Ts, pTime, time_frames)
         
 
     ################* DRAW RECTANGULOS and text ###############
 
-    kdb.draw_text_and_rectangles(point_save, frame, width, height, fps, draw_rectangules=True,draw_text=True)
+    tr.draw_text_and_rectangles(point_save, frame, width, height, fps, draw_rectangules=True,draw_text=True)
 
     ##############* SHOW THE FRAMES #############
 
-    SAVED = kdb.main_show(frame = frame, SAVED = None, width= width, height=height, roi_save= roi_save, window_move= window_move, df = None, RECORDING = None, t1 = None, save_len = None, show_rois = False)
+    SAVED = sh.main_show(frame = frame, SAVED = None, width= width, height=height, roi_save= roi_save, window_move= window_move, df = None, RECORDING = None, t1 = None, save_len = None, show_rois = False)
         
     #####* RESET THE LIST ########
 
-    roi_save, point_save= kdb.reset_save(roi_save)
+    roi_save, point_save= res.reset_save(roi_save)
 
     ###* EXIT
         
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break   #press q for exit
-cap.release()
+camera.release_camera()
 cv2.destroyAllWindows()
