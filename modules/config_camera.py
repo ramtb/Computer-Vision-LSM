@@ -75,6 +75,7 @@ class CameraHandler:
             ret, frame = self.cap.read()
             if not ret:
                 print("Failed to capture frame.")
+            # print(ret, frame.shape)
         return ret,frame
         
 

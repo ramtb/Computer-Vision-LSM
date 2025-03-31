@@ -8,6 +8,7 @@ from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtSvgWidgets import QSvgWidget
 from modules.loaders import RelativeDirToRoot
 import sys
+from modules.config_camera import CameraHandler
 ### Path images ###
 relative_dir = RelativeDirToRoot(root_dir='Computer-vision-LSM')
 path_images = relative_dir.generate_path('GUI\\assets\\images')
@@ -15,7 +16,10 @@ path_images = relative_dir.generate_path('GUI\\assets\\images')
 class MainWindow(QMainWindow):
     def __init__(self,app):
         super().__init__()
+        self.show_gui = False
+        self.close_all_windows = False
         self.app = app
+        self.destroy_gui = False
         self.setWindowTitle("Keet: Rompiendo barreras de silencio")
         self.resize(854, 480)
         appIcon = QIcon("GUI\\assets\\images\\keet.svg")
@@ -102,6 +106,8 @@ class MainWindow(QMainWindow):
 
     def quit_app(self):
         self.app.quit()
+        self.close_all_windows = True
+        print('cerrando app')
 
     def show_fullscreen(self):
         """Mostrar la ventana en pantalla completa."""
@@ -111,11 +117,17 @@ class MainWindow(QMainWindow):
         self.new_widget = Creditos(self)  # Pasamos la referencia de la ventana principal
         self.new_widget.show()
         self.hide()
-    def open_GUI(self):
+    def open_GUI(self, ):
         """Abrir el nuevo widget y ocultar la ventana principal."""
         self.gui = GUI(self)
         self.gui.show()
+        self.show_gui = True
+        self.destroy_gui = False
         self.hide()
+    def destroy_gui_window(self):
+        """Destruir el widget GUI."""
+        self.destroy_gui = True
+        print('destruyendo gui')
     def open_glosario(self):
         """Abrir el nuevo widget y ocultar la ventana principal."""
         self.glosario = Glosario(self)
@@ -207,7 +219,7 @@ class Creditos(QWidget):
 
         
     def quit_app(self):
-        QApplication.quit()
+        self.parent.quit_app()
 
     def load_svg_to_label(self, svg_path, label, width, height):
         """
@@ -226,6 +238,7 @@ class GUI(QWidget):
 
     def __init__(self, parent):
         super().__init__()
+        self.destroy_gui = False
         self.parent = parent
         self.initUI()
         appIcon = QIcon("GUI\\assets\\images\\keet.svg")
@@ -234,6 +247,7 @@ class GUI(QWidget):
     def initUI(self):
         # Configurar la ventana principal
         self.setWindowTitle('Keet: Rompiendo barreras de silencio')
+
         screen_geometry = QApplication.primaryScreen().availableGeometry()
         screen_width = screen_geometry.width()
         screen_height = screen_geometry.height()
@@ -392,9 +406,16 @@ class GUI(QWidget):
         """Mostrar la ventana principal y ocultar el widget actual."""
         self.parent.show()
         self.hide()
+        if self.parent.show_gui:
+            self.parent.show_gui = False
+        self.parent.destroy_gui_window()
+        
+            
 
     def quit_app(self):
-        QApplication.quit()
+        self.parent.quit_app()
+        self.show_gui = False
+        self.destroy_gui = True
 
 class Glosario(QWidget):
     def __init__(self, parent):
@@ -738,6 +759,7 @@ class training(QWidget):
 
     def quit_app(self):
         QApplication.quit()
+        self.parent.quit_app()
 
 
 if __name__ == "__main__":

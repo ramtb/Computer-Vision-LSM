@@ -15,6 +15,7 @@ import modules.mod_main.start as st, modules.mod_main.tracking as tr, modules.mo
 from modules.loaders import ModelLoaderFace, ModelLoaderSigns, RelativeDirToRoot 
 from modules.faces.face_positions import FaceMeshDetector
 from modules.config_camera import CameraHandler
+from modules.positions.hand_positions import HandDetector
 
 from PySide6.QtWidgets import QApplication
 from gui_español import *
@@ -37,12 +38,12 @@ model = loader.load_sign_model()
 scaler = loader.load_sign_scaler()
 
 dict_labels = {0: 'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'L', 10:'M', 11:'N', 12:'O', 13:'P', 14:'R', 15:'S', 16:'T', 17:'U', 18:'V', 19:'W', 20:'Y'}
-start_time = time.time()
-delay_time = 1  # Delay between predictions in seconds
+delay_time = 1
 predicted = False
+start_time = time.time()
 phrase = ''
 n_letters = 0
-
+max_min = [0, 0, 0, 0]
 #######* LOAD THE MODEL of faces ################################
 
 loader_faces = ModelLoaderFace(model_name='face_model_GERARDO.h5', scaler_name='scaler_faces_GERARDO.pkl')
@@ -62,18 +63,10 @@ with open(style_path, "r") as qss_file:
 
 app.setStyleSheet(qss_style)
 
-gui = MainWindow(app)
-gui.show()
-
-# def close_application():
-#     global app_running
-#     app_running = False
-#     camera.release_camera()
-#     cv2.destroyAllWindows()
-#     app.quit()
+main = MainWindow(app)
+main.show()
 
 
-# gui.close_application.connect(close_application)
 
 #########* CAMERA SETTINGS ###########
 
@@ -84,7 +77,9 @@ camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the res
 width, height = camera.get_resolution() ### Get the resolution of the camera
 print('camera resolution',width, height)
 
+
 ##########* Begin parameters ################# 
+### Statics Signs ###
 
 time_frames, t= st.time_set()
 
@@ -93,6 +88,8 @@ num_hand = 1
 mpHands = mp.solutions.hands
 
 hands = mpHands.Hands(static_image_mode=False, max_num_hands= num_hand, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+detector = HandDetector(camera=camera, hands=hands)
+
 
 mpDraw = mp.solutions.drawing_utils
 
@@ -111,24 +108,26 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 ############## PARAMETERS ################
 completed_translations = []
-app_running = True
 ###################* While loop for tracking    #################  
 
-while app_running:
+while main.close_all_windows == False:
     app.processEvents()
-    while gui.show_gui == True:
+    if main.show_gui == True:
         
         
         current_time = time.time()
 
-        ret, frame, frame_copy, frame_gray, frame_equali, results = tr.read_frames(camera,hands,equali=False)
+        ret, frame = camera.get_frames()
+    
+        if not ret:
+            print("Failed to capture frame")
+            break
         
         #######* HAND EXTRACTION ########
-        roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = tr.process_hand_landmarks(frame_equali= frame_equali,
-                                                        results= results, width= width, height= height, t= t,tiempo_de_espera= 3
-                                                        ,save_len = None,print_lm=False, size_roi = 0.087, point_save={})       
-        
-        gui.update_led_status(flag == 1)
+        _, raw_x, raw_y, _, is_there_hand = detector.process_frame(frame)
+        raw_x = np.array(raw_x)
+        raw_y = np.array(raw_y)
+        main.gui.update_led_status(is_there_hand)
         ################* FACE MESH ############	
         face_mesh_results = face_mesh_images.process(frame)
         
@@ -173,44 +172,71 @@ while app_running:
             cv2.putText(frame, predictions_face, (20, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 2)
         
         #############* REAL TIME MODEL HAND #########
-        if current_time - start_time >= delay_time:  
-            if flag == 1:
+        if  current_time - start_time >= delay_time:
+            print(current_time - start_time)
+            if is_there_hand == True:
+                # start = time.time()
+                ###calculare max and min of x and y
                 
+                
+                cv2.putText(frame, "Hand detected", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2.5, (0, 255, 0), 2)
+                # Paso 1: Calcular las posiciones escaladas
+                positions_x = (raw_x * width).astype(int)
+                positions_y = (raw_y * height).astype(int)
+
+                # Paso 2: Calcular los límites mínimos y máximos de las posiciones
+                min_x = np.min(positions_x)
+                min_y = np.min(positions_y)
+                max_x = np.max(positions_x)
+                max_y = np.max(positions_y)
+                size_roi = 0.087  # Tamaño de la ROI (20% del tamaño de la mano)
+
+                # Paso 3: Ajustar los límites de la ROI usando el tamaño de la ROI
+                x_min = min_x - int(width* size_roi)
+                y_min = min_y - int( height* size_roi)
+                x_max = max_x + int(width* size_roi)
+                y_max = max_y + int(height * size_roi)
+                
+                roi_positions_x = (positions_x*(y_max-y_min)).astype(int)
+                roi_positions_y = (positions_y*(x_max - x_min)).astype(int)
+                print(x_max-x_min, y_max-y_min)
                 if n_letters == 0:
                     phrase = ''
-                n_letters += 1
-                data =  [ np.reshape(np.array(list(lm_x_h1.values())),(21,1))
-                        , np.reshape(np.array(list(lm_x_h1_roi.values())),(21,1)), 
-                        np.reshape(np.array(list(lm_y_h1.values())),(21,1)), 
-                        np.reshape(np.array(list(lm_y_h1_roi.values())),(21,1)),]      
+                    n_letters += 1
+                data = [np.reshape(positions_x, (21, 1)), 
+                        np.reshape(roi_positions_x, (21, 1)), np.reshape(positions_y, (21, 1)), 
+                        np.reshape(roi_positions_y, (21, 1))]
+
                 data = np.concatenate(data,axis=1)
                 data = data.reshape(1, 84)
                 data_normalized = scaler.transform(data)
                 predictions = model.predict(data_normalized, verbose=1)
                 predicted_class = np.argmax(predictions, axis=1)
-                # print(f'Predicción: {dict_labels[predicted_class[0]]}') 
+                    # print(f'Predicción: {dict_labels[predicted_class[0]]}') 
                 prediction = dict_labels[predicted_class[0]]
                 predicted = True
                 phrase = phrase + prediction
+                
 
-                # Add emoji
+                    # Add emoji
                 if predicted_face:
                     phrase_with_emoji = f"{emotion_emoji} {phrase}"
                 else:
                     phrase_with_emoji = phrase
 
-                gui.update_text(phrase_with_emoji) # Actualizar el texto
+                main.gui.update_text(phrase_with_emoji) # Actualizar el texto
+                start_time = current_time
             else:
                 if n_letters > 0:
                     bvs.sintetizar_emocion('emocion=alegria', texto = phrase )
                     completed_translations.append(phrase)  # Añadir la traducción completada a la lista
-                    gui.update_text('Esperando ...', completed_translations[-1])  # Ac
+                    main.gui.update_text('Esperando ...', completed_translations[-1])  # Ac
                     predicted = False
                     n_letters = 0
-            start_time = current_time    
-        if predicted == True and point_save != {}:
-            cv2.putText(frame, prediction, (point_save['h1_x_max'], point_save['h1_y_min']-40), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
-            cv2.putText(frame, phrase , (point_save['h1_x_max'], point_save['h1_y_min']+50), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
+                                
+        if predicted == True:
+            cv2.putText(frame, prediction, (int(x_max), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
+            cv2.putText(frame, phrase , (int(max_x), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
                     
             
         
@@ -221,22 +247,23 @@ while app_running:
 
         ################* DRAW RECTANGULOS and text ###############
 
-        tr.draw_text_and_rectangles(point_save, frame, width, height, fps, draw_rectangules=True,draw_text=True)
+        tr.draw_text_and_rectangles(max_min, frame, width, height, fps,
+                                    draw_rectangles=True,draw_text=True, is_there_hand=is_there_hand,)
 
         ##############* SHOW THE FRAMES #############
 
-        SAVED = sh.main_show(frame = frame, SAVED = None, width= width, height=height, roi_save= roi_save, window_move= window_move, df = None, RECORDING = None, t1 = None, save_len = None)
-            
-        #####* RESET THE LIST ########
+        cv2.imshow('HAND Detection', frame)
+        cv2.waitKey(1)
 
-        roi_save, point_save= res.reset_save(roi_save)
+        max_min = [0,0,0,0]
+    #     print(gui.destroy_gui, app_running)
+    #     if gui.destroy_gui == True:
+    #         gui.destroy_gui = False
+    #         app_running = False
+    #         camera.release_camera()
+    #         cv2.destroyAllWindows()
+    if main.destroy_gui == True:
+        cv2.destroyAllWindows()
+    # print(gui.destroy_gui, app_running)
 
-        ###* EXIT
-            
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            app_running = False
-
-    # close_application()
-
-for translation in completed_translations:
-    print(f"Traducción completada: {translation}")
+camera.release_camera()

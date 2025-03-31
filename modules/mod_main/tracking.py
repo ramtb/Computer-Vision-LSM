@@ -143,34 +143,28 @@ def process_hand_landmarks( point_save, frame_equali, results, width,height, t, 
             #     save_len = 0
     return roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi,flag
 
-def draw_text_and_rectangles(point_save,frame, width, height, fps,draw_rectangules = True,draw_text = True)-> None:
+def draw_text_and_rectangles(point_save, frame, width, height, fps, draw_rectangles=True, draw_text=True, is_there_hand = False) -> None:
     """
-    This function draws the text and rectangles in the frame.
+    This function draws the text and a rectangle (ROI) in the frame.
     Parameters:
     frame: The frame from the camera.
     width: The width of the camera.
     height: The height of the camera.
     fps: The frames per second.
-    point_save: The list with the points of the ROIs.
+    point_save: A tuple or list containing coordinates of the single ROI.
     
     """
     cv2.putText(frame, 'Sign Language recognition', (int(width*0.05), int(height*0.05)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     cv2.putText(frame, 'FPS = ' + str(int(fps)), (int(width*0.05), int(height*0.1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     cv2.putText(frame, 'Press q to exit', (int(width*0.7), int(height*0.05)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
-    if np.any(point_save):
-        if draw_rectangules == True:
-            cv2.rectangle(frame, pt1=(point_save['h1_x_min'], point_save['h1_y_min']), pt2=(point_save['h1_x_max'], point_save['h1_y_max']), color=(100, 100, 255), thickness=3)
-        if draw_text == True:
-            cv2.putText(frame, f'ROI{1}', (point_save['h1_x_min'], point_save['h1_y_min']-40), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 3)
-        
-        if 'h2_x_min' in point_save.keys():
-            if draw_rectangules == True:
-                cv2.rectangle(frame, pt1=(point_save['h2_x_min'], point_save['h2_y_min']), pt2=(point_save['h2_x_max'], point_save['h2_y_max']), color=(255 ,100, 100), thickness=3)
-            if draw_text == True:
-                cv2.putText(frame, f'ROI{2}', (point_save['h2_x_min'], point_save['h2_y_min']-40), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 3) 
-    else:
-        pass
+    # Ensure point_save has exactly 4 elements (tuple or list with 4 coordinates)
+    if is_there_hand:
+        x_min, y_min, x_max, y_max = point_save
+        if draw_rectangles:
+            cv2.rectangle(frame, pt1=(x_min, y_min), pt2=(x_max, y_max), color=(100, 100, 255), thickness=3)
+        if draw_text:
+            cv2.putText(frame, 'ROI', (x_min, y_min-40), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 255), 3)
 
 def ends_if(cTime, fps, Ts, pTime, time_frames)-> tuple:
     """

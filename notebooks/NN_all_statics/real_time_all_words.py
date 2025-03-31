@@ -50,7 +50,7 @@ while True:
     
     current_time = time.time()
     
-    ret, frame, frame_copy, frame_gray, frame_equali, results = tr.read_frames(camera,hands,equali=True)
+    ret, frame = camera.get_frames()
     #print(frame.shape)
     
     roi_save, save_len, point_save, lm_x_h1, lm_y_h1, lm_x_h2, lm_y_h2, lm_x_h1_roi, lm_y_h1_roi, lm_x_h2_roi, lm_y_h2_roi, flag = tr.process_hand_landmarks(frame_equali= frame_equali,
