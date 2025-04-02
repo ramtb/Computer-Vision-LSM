@@ -323,6 +323,19 @@ class GUI(QWidget):
         main_layout.addLayout(h_layout)
 
         main_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        
+        # Layout para los nuevos botones
+        extra_button_layout = QHBoxLayout()
+
+        self.extra_button_1 = QPushButton('Extra 1', self)
+        self.extra_button_1.setCursor(Qt.PointingHandCursor)
+        self.extra_button_1.setToolTip("Este es el primer botón extra")
+        extra_button_layout.addWidget(self.extra_button_1)
+
+        self.extra_button_2 = QPushButton('Extra 2', self)
+        self.extra_button_2.setCursor(Qt.PointingHandCursor)
+        self.extra_button_2.setToolTip("Este es el segundo botón extra")
+        extra_button_layout.addWidget(self.extra_button_2)
 
         button_layout = QHBoxLayout()
         
@@ -343,9 +356,10 @@ class GUI(QWidget):
         self.close_app_button.setToolTip("Exit the system")
         self.close_app_button.setCursor(Qt.PointingHandCursor)
         button_layout.addWidget(self.close_app_button)
-
+        main_layout.addLayout(extra_button_layout)
 
         main_layout.addLayout(button_layout)
+
 
         self.setLayout(main_layout)
 

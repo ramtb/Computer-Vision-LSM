@@ -3,10 +3,11 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QHBoxLayout, QWidget, 
                                QPushButton, QSpacerItem, QSizePolicy, QGroupBox, QGridLayout, QScrollArea, QFrame)
                                
 from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QFont, QColor, QPixmap, QPainter, QIcon, QMovie
+from PySide6.QtGui import QFont, QColor, QPixmap, QPainter, QIcon, QMovie, QTransform
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtSvgWidgets import QSvgWidget
 from modules.loaders import RelativeDirToRoot
+
 import sys
 from modules.config_camera import CameraHandler
 ### Path images ###
@@ -156,7 +157,7 @@ class Creditos(QWidget):
         super().__init__()
         self.parent = parent
         self.setWindowTitle("Creditos")
-        self.resize(854, 480)
+        self.resize(1280, 720)
         appIcon = QIcon("GUI\\assets\\images\\keet.svg")
         self.setWindowIcon(appIcon)
         scrollarea = QScrollArea()
@@ -167,15 +168,20 @@ class Creditos(QWidget):
 
         grid_layout = QGridLayout(container)
 
-        people_data = [("GUI\\assets\\images\\cat.png", "Héctor Gerardo Martínez Fuentes, Faculty of Sciences UNAM, Biomedical Physics"),
-                       ("GUI\\assets\\images\\cat.png", "Armando Huitzilt Rodríguez, Faculty of Sciences UNAM, Biomedical Physics"),
-                       ("GUI\\assets\\images\\cat.png", "Diego Chairez Veloz, UAM Iztapalapa, Biomedical Engineering"),
-                       ("GUI\\assets\\images\\cat.png", "Angel Ramses Tellez Becerra, Faculty of Sciences UNAM, Biomedical Physics"),
-                       ("GUI\\assets\\images\\cat.png", "Arturo Arroyo Nuñez, Faculty of Sciences UNAM, Biomedical Physics")]
+        people_data = [("GUI\\assets\\images\\Gerardo.png", "Héctor Gerardo Martínez Fuentes, Facultad de Ciencias UNAM, Física Biomédica"),
+                    #  ("GUI\\assets\\images\\cat.png", "Armando Huitzilt ríguez, Facultad de Ciencias UNAM, Física Biomédica"),
+                    # ("GUI\\assets\\images\\cat.png", "Diego Chairez Veloz, UAM Iztapalapa, Ingeniería Biomédica"),
+                    ("GUI\\assets\\images\\ramses.png", "Angel Ramses Téllez Becerra, Facultad de Ciencias UNAM, Física Biomédica"),
+                    ("GUI\\assets\\images\\arturo.png", "Arturo Arroyo Núñez, Facultad de Ciencias UNAM, Física Biomédica"),
+                    ("GUI\\assets\\images\\chairez.png", "Jose Eduardo Chairez Veloz, Facultad de Ciencias UNAM, Física Biomédica")
+                     ]
+
         for i, (image, name) in enumerate(people_data):
             photo_label = QLabel()
             pixmap = QPixmap(image)
-            pixmap = pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            if i ==1:
+                pixmap = pixmap.transformed(QTransform().rotate(-90))  # Rota la imagen 90 grados
+            pixmap = pixmap.scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             photo_label.setPixmap(pixmap)
             photo_label.setAlignment(Qt.AlignCenter)
 
@@ -240,6 +246,8 @@ class GUI(QWidget):
         super().__init__()
         self.destroy_gui = False
         self.parent = parent
+        self.sign = 'static'
+        self.emotions = True
         self.initUI()
         appIcon = QIcon("GUI\\assets\\images\\keet.svg")
         self.setWindowIcon(appIcon)
@@ -337,6 +345,23 @@ class GUI(QWidget):
         main_layout.addLayout(h_layout)
 
         main_layout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        
+        
+         # Layout para los nuevos botones
+        extra_button_layout = QHBoxLayout()
+
+        self.extra_button_1 = QPushButton('Desactivar emociones', self)
+        self.extra_button_1.setCursor(Qt.PointingHandCursor)
+        self.extra_button_1.clicked.connect(self.change_emotions)
+        self.extra_button_1.setToolTip("oprime este boton para desactivar el modelo de emociones")
+        extra_button_layout.addWidget(self.extra_button_1)
+
+        self.extra_button_2 = QPushButton('Cambiar a señas dinamicas', self)
+        self.extra_button_2.setCursor(Qt.PointingHandCursor)
+        self.extra_button_2.clicked.connect(self.change_signs)
+        self.extra_button_2.setToolTip("oprime este boton para cambiar entre modelos de señas")
+        extra_button_layout.addWidget(self.extra_button_2)
+
 
         button_layout = QHBoxLayout()
         
@@ -358,6 +383,7 @@ class GUI(QWidget):
         self.close_app_button.setCursor(Qt.PointingHandCursor)
         button_layout.addWidget(self.close_app_button)
 
+        main_layout.addLayout(extra_button_layout)
 
         main_layout.addLayout(button_layout)
 
@@ -416,13 +442,31 @@ class GUI(QWidget):
         self.parent.quit_app()
         self.show_gui = False
         self.destroy_gui = True
+        
+    def change_signs(self):
+        """Cambiar entre señas dinámicas y estáticas."""
+        if self.sign == 'static':
+            self.sign = 'dynamic'
+            self.extra_button_2.setText('Cambiar a señas estáticas')
+        elif self.sign == 'dynamic':
+            self.sign = 'static'
+            self.extra_button_2.setText('Cambiar a señas dinámicas')
+            
+    def change_emotions(self):
+        """Cambiar entre activar y desactivar emociones."""
+        if self.emotions == True:
+            self.emotions = False
+            self.extra_button_1.setText('Activar emociones')
+        elif self.emotions == False:
+            self.emotions = True
+            self.extra_button_1.setText('Desactivar emociones')
 
 class Glosario(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
         self.setWindowTitle("Glossary of Mexican Sign Language")
-        self.resize(854, 480)
+        self.resize(1280, 720)
         appIcon = QIcon("GUI\\assets\\images\\keet.svg")
         self.setWindowIcon(appIcon)
         self.main_layout = QVBoxLayout(self)
@@ -438,13 +482,13 @@ class Glosario(QWidget):
         self.scroll_layout = QVBoxLayout(self.scroll_content)
 
         # Sección: Señas Estáticas
-        static_label = QLabel("Static Signs")
+        static_label = QLabel("Señas Estáticas")
         static_label.setFont(QFont("Helvetica Neue", 16, QFont.Bold))
         static_label.setAlignment(Qt.AlignCenter)
         static_label.setStyleSheet("color: #333; margin: 10px 0;")
 
         self.static_grid = QGridLayout()
-        self.static_grid.setSpacing(10)
+        self.static_grid.setSpacing(20)  # Aumenté el espaciado entre las celdas
 
         # Añadir imágenes y etiquetas manualmente (Señas Estáticas)
         self.static_images = []
@@ -469,8 +513,6 @@ class Glosario(QWidget):
         self.add_static_image("V", "GUI\\assets\\images\\Static\\V.jpg", 6, 3)
         self.add_static_image("W", "GUI\\assets\\images\\Static\\W.jpg", 6, 4)
         self.add_static_image("Y", "GUI\\assets\\images\\Static\\Y.jpg", 8, 0)
-        
-
 
         # Línea divisoria
         separator = QFrame()
@@ -480,23 +522,36 @@ class Glosario(QWidget):
         self.scroll_layout.addLayout(self.static_grid)
         self.scroll_layout.addWidget(separator)
 
+        # Espaciador adicional entre las secciones
+        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.scroll_layout.addItem(spacer)
         # Sección: Señas Dinámicas
-        dynamic_label = QLabel("Dynamic Signs")
+        dynamic_label = QLabel("Señas Dinámicas")
         dynamic_label.setFont(QFont("Helvetica Neue", 16, QFont.Bold))
         dynamic_label.setAlignment(Qt.AlignCenter)
         dynamic_label.setStyleSheet("color: #333; margin: 10px 0;")
 
         self.dynamic_grid = QGridLayout()
-        self.dynamic_grid.setSpacing(10)
+        self.dynamic_grid.setSpacing(15)  # Incrementé el espacio entre celdas
 
-        # Añadir GIFs dinámicos
-        self.dynamic_gifs = []
-        self.add_dynamic_gif("I", "GUI\\assets\\images\\cat.gif", 0, 0)
-        self.add_dynamic_gif("J", "GUI\\assets\\images\\cat.gif", 0, 1)
-        self.add_dynamic_gif("K", "GUI\\assets\\images\\cat.gif", 0, 2)
-        self.add_dynamic_gif("L", "GUI\\assets\\images\\cat.gif", 0, 3)
-        self.add_dynamic_gif("M", "GUI\\assets\\images\\cat.gif", 0, 4)
-        self.add_dynamic_gif("N", "GUI\\assets\\images\\cat.gif", 2, 0)
+        # Añadir texto en lugar de GIFs dinámicos
+        self.add_dynamic_gif("23", '', 0, 0)
+        self.add_dynamic_gif("Bueno", '', 0, 1)
+        self.add_dynamic_gif("Hola", '', 0, 2)
+        self.add_dynamic_gif("Mal", '', 0, 3)
+        self.add_dynamic_gif("No", '', 0, 4)
+        self.add_dynamic_gif("Tengo", '', 1, 0)
+        self.add_dynamic_gif("¿Qué tal?", '', 1, 1)
+        self.add_dynamic_gif("Sí", '', 1, 2)
+        self.add_dynamic_gif("24", '', 1, 3)
+        self.add_dynamic_gif("Yo soy", '', 1, 4)
+        
+        
+        # Añadir espaciadores para asegurar que haya espacio entre las letras
+        for i in range(5):
+            self.dynamic_grid.setRowStretch(i, 1)
+            self.dynamic_grid.setColumnStretch(i, 1)
+
 
         self.scroll_layout.addWidget(dynamic_label)
         self.scroll_layout.addLayout(self.dynamic_grid)
@@ -529,24 +584,23 @@ class Glosario(QWidget):
         text_label.setAlignment(Qt.AlignCenter)
         text_label.setFont(QFont("Helvetica Neue", 12, QFont.Bold))
 
+        pixmap = QPixmap(image_path)
+        # Mantener la relación de aspecto pero asegurarse de que se ajuste a la altura
+        height = 150  # Altura máxima de la imagen
+        pixmap = pixmap.scaledToHeight(height, Qt.SmoothTransformation)
+
+        image_label.setPixmap(pixmap)
         self.static_images.append((image_label, image_path))  # Guardar referencia
         self.static_grid.addWidget(image_label, row, col, Qt.AlignCenter)
         self.static_grid.addWidget(text_label, row + 1, col, Qt.AlignCenter)
 
     def add_dynamic_gif(self, label_text, gif_path, row, col):
-        """Añade un GIF dinámico al grid."""
-        gif_label = QLabel()
+        """Añade solo texto en lugar de un GIF dinámico al grid."""
         text_label = QLabel(label_text)
         text_label.setAlignment(Qt.AlignCenter)
         text_label.setFont(QFont("Helvetica Neue", 12, QFont.Bold))
 
-        movie = QMovie(gif_path)
-        gif_label.setMovie(movie)
-        movie.start()
-
-        self.dynamic_gifs.append((gif_label, movie))  # Guardar referencia del QLabel y el QMovie
-        self.dynamic_grid.addWidget(gif_label, row, col, Qt.AlignCenter)
-        self.dynamic_grid.addWidget(text_label, row + 1, col, Qt.AlignCenter)
+        self.dynamic_grid.addWidget(text_label, row, col, Qt.AlignCenter)
 
     def resizeEvent(self, event):
         """Redimensiona las imágenes y GIFs al cambiar el tamaño de la ventana."""
@@ -555,36 +609,16 @@ class Glosario(QWidget):
 
         # Redimensionar imágenes estáticas
         for image_label, image_path in self.static_images:
-            pixmap = QPixmap(image_path).scaled(new_width, new_height, Qt.KeepAspectRatio)
+            pixmap = QPixmap(image_path).scaledToHeight(200, Qt.SmoothTransformation)  # Asegura que la altura se mantenga
             image_label.setPixmap(pixmap)
 
-        # Redimensionar GIFs dinámicos
-        for gif_label, movie in self.dynamic_gifs:
-            # Obtener dimensiones actuales del contenedor
-            container_width = self.width() // 5
-            container_height = self.height() // 5
-
-            # Obtener dimensiones del GIF original
-            original_size = movie.currentPixmap().size()
-            original_width, original_height = original_size.width(), original_size.height()
-
-            # Mantener proporción
-            aspect_ratio = original_width / original_height
-            if container_width / container_height > aspect_ratio:
-                new_width = int(container_height * aspect_ratio)
-                new_height = container_height
-            else:
-                new_width = container_width
-                new_height = int(container_width / aspect_ratio)
-
-            # Aplicar tamaño escalado
-            movie.setScaledSize(QSize(new_width, new_height))
-
         super().resizeEvent(event)
+
     def show_parent(self):
         """Mostrar la ventana principal y ocultar el widget actual."""
         self.parent.show()
         self.hide()
+
 
 class training(QWidget):
     def __init__(self, parent):

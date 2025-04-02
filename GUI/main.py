@@ -32,7 +32,7 @@ emotion_emojis = {
 }
 
 
-##########* LOAD THE MODEL ################################
+##########* LOAD THE MODEL OF STATICS SIGNS ################################
 loader = ModelLoaderSigns(model_name='all_statics_model2.h5', scaler_name='scaler.pkl')
 model = loader.load_sign_model()
 scaler = loader.load_sign_scaler()
@@ -44,6 +44,28 @@ start_time = time.time()
 phrase = ''
 n_letters = 0
 max_min = [0, 0, 0, 0]
+
+#########* LOAD THE MODEL of dynamic signs ################################
+
+loader = ModelLoaderSigns(model_name='dynamic_model_all.h5', scaler_name=None)
+model_dinamics = loader.load_sign_model()
+
+dict_labels_dinamics = {0: 'Veintitres', 1:'Bueno', 2:'Hola', 3:'Mal', 4:'No', 5:'Tengo', 6: '¿Que tal?', 
+               7:'Si', 8:'Veinticuatro', 9: 'Yo soy'}
+predicted = False
+
+#### Variables ####
+
+data_dinamics = pd.DataFrame(columns=['cx', 'cxROI', 'cy', 'cyROI'])
+df = {}
+n_frames = 30
+waiting_tine = 1 ## waiting time to start the prediction
+start = time.time()
+start_clock = True
+contador_frames = 0
+temp_data = []  # Lista temporal para almacenar datos de cada frame
+
+
 #######* LOAD THE MODEL of faces ################################
 
 loader_faces = ModelLoaderFace(model_name='face_model_GERARDO.h5', scaler_name='scaler_faces_GERARDO.pkl')
@@ -52,7 +74,7 @@ scaler_faces = loader_faces.load_face_scaler()
 dict_labels_faces = {0: 'FELIZ', 1: 'NEUTRAL', 2: 'SORPRESA', 3: 'TRISTE'}
 predicted_face = False
 
-#########* CONFIGURAR GUI ###########
+#########* Settings GUI ###########
 
 app = QApplication(sys.argv)
 
@@ -71,7 +93,7 @@ main.show()
 #########* CAMERA SETTINGS ###########
 
 
-camera = CameraHandler(camera_index=0, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
+camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
 
 camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
 width, height = camera.get_resolution() ### Get the resolution of the camera
@@ -90,13 +112,8 @@ mpHands = mp.solutions.hands
 hands = mpHands.Hands(static_image_mode=False, max_num_hands= num_hand, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 detector = HandDetector(camera=camera, hands=hands)
 
-
 mpDraw = mp.solutions.drawing_utils
-
-window_move = st.wind_move(roi1_x=0.1, roi1_y=0.4, roi2_x=0.1, roi2_y=0.6)
-
-cTime, pTime, fps, Ts, time_frames = st.frame_settings()
-
+pTime = 0
 #*FIRTS ARGUMENT FOR ROI 1 AND THE SECOND FOR ROI 2
 
 #####* MEDIAPIPE FACE MESH ########
@@ -110,6 +127,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 completed_translations = []
 ###################* While loop for tracking    #################  
 
+emotion_emoji = emotion_emojis.get('FELIZ', '')
 while main.close_all_windows == False:
     app.processEvents()
     if main.show_gui == True:
@@ -152,7 +170,7 @@ while main.close_all_windows == False:
 
         #############* REAL TIME MODEL FACE #########
         if current_time - start_time >= delay_time:  
-            if flag_face == 1:
+            if flag_face == 1 and main.gui.emotions == True:
                 positions_x = (positions_x*width).astype(int)
                 positions_y = (positions_y*height).astype(int)
                 roi_positions_x = positions_x*((max_x-min_x)).astype(int)
@@ -174,11 +192,9 @@ while main.close_all_windows == False:
         #############* REAL TIME MODEL HAND #########
         if  current_time - start_time >= delay_time:
             # print(current_time - start_time)
-            if is_there_hand == True:
+            if is_there_hand == True and main.gui.sign == 'static':
                 # start = time.time()
-                ###calculare max and min of x and y
-                
-                
+                ###calculare max and min of x and y  
                 # Paso 1: Calcular las posiciones escaladas
                 positions_x = (raw_x * width).astype(int)
                 positions_y = (raw_y * height).astype(int)
@@ -207,7 +223,7 @@ while main.close_all_windows == False:
                 data = data.reshape(1, 84)
                 # print(data)
                 data_normalized = scaler.transform(data)
-                predictions = model.predict(data_normalized, verbose=1)
+                predictions = model.predict(data_normalized, verbose=0)
                 predicted_class = np.argmax(predictions, axis=1)
                     # print(f'Predicción: {dict_labels[predicted_class[0]]}') 
                 prediction = dict_labels[predicted_class[0]]
@@ -222,7 +238,7 @@ while main.close_all_windows == False:
                     phrase_with_emoji = phrase
 
                 main.gui.update_text(phrase_with_emoji) # Actualizar el texto
-                start_time = current_time
+                start_time = current_time        
             else:
                 if n_letters > 0:
                     bvs.sintetizar_emocion('emocion=alegria', texto = phrase )
@@ -230,27 +246,99 @@ while main.close_all_windows == False:
                     main.gui.update_text('Esperando ...', completed_translations[-1])  # Ac
                     predicted = False
                     n_letters = 0
-                                
-        # if predicted == True:
-        #     cv2.putText(frame, prediction, (int(x_max), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
-        #     cv2.putText(frame, phrase , (int(max_x), int(min_y)), cv2.FONT_HERSHEY_SIMPLEX, 2, (50, 50, 200), 3)
                     
+                    
+                    
+                    
+            ######* DINAMICS SIGNS ##########
             
-        
-        #*######### ENDS IF ##############
-            
-        cTime, fps, Ts, pTime, time_frames = tr.ends_if(cTime, fps, Ts, pTime, time_frames)
-        
+            if is_there_hand and main.gui.sign == 'dynamic': 
+                start = time.time()
+                
+                # Calcular posiciones solo una vez
+                positions_x = (raw_x * width).astype(int)
+                positions_y = (raw_y * height).astype(int)
 
+                min_x = np.min(positions_x)
+                min_y = np.min(positions_y)
+                max_x = np.max(positions_x)
+                max_y = np.max(positions_y)
+
+                roi_positions_x = (positions_x - min_x).astype(int)
+                roi_positions_y = (positions_y - min_y).astype(int)
+
+                # Mostrar "Hand detected"
+                cv2.putText(frame, "Hand detected", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2.5, (0, 255, 0), 2)
+                
+                # Actualizar contador de frames
+                contador_frames += 1
+                
+                # Mostrar texto cada 5 frames para optimizar rendimiento
+                if contador_frames % 1 == 0:
+                    cv2.putText(frame, f'frames: {contador_frames}/{n_frames}', 
+                                (int(camera.width_screen * 0.1), int(camera.height_screen * 0.9)), 
+                                cv2.FONT_HERSHEY_PLAIN, 4, (0, 255, 0), 2)
+
+                # Guardar datos temporalmente en lista
+                temp_data.append({
+                    'cx': positions_x.tolist(),
+                    'cxROI': roi_positions_x.tolist(),
+                    'cy': positions_y.tolist(),
+                    'cyROI': roi_positions_y.tolist()
+                })
+
+                # Cuando alcanzamos n_frames, procesamos los datos
+                if contador_frames == n_frames:
+                    # Convertir lista a DataFrame
+                    data_dinamics = pd.DataFrame(temp_data)
+                    data_dinamics = np.array(data_dinamics.applymap(lambda x: np.array(x)).to_numpy().tolist())
+                    # Aplanar las columnas (30, 4, 21) → (30, 84)
+                    data_dinamics = data_dinamics.transpose(0, 2, 1).reshape(n_frames, -1).astype('int32')
+
+                    # Expandir la dimensión para el modelo (1, 30, 84)
+                    data_dinamics = np.expand_dims(data_dinamics, axis=0)
+                    # Hacer predicción
+                    predictions = model_dinamics.predict(data_dinamics, verbose=0)
+                    predicted_class = np.argmax(predictions, axis=1)
+
+                    # Obtener la frase correspondiente
+                    phrase = dict_labels_dinamics[predicted_class[0]]
+                    predicted = True
+
+                    # Reiniciar variables
+                    contador_frames = 0
+                    temp_data = []  # Limpiar la lista temporal
+
+                    # Generar síntesis de voz
+                    bvs.sintetizar_emocion('emocion=alegria', texto=phrase)
+                    completed_translations.append(phrase)
+                    
+                    # Actualizar GUI con la predicción
+                    phrase_with_emoji = f"{emotion_emoji} {phrase}" if predicted_face else phrase
+                    main.gui.update_text(phrase_with_emoji)
+
+        
+           
+        
         ################* DRAW RECTANGULOS and text ###############
         if is_there_hand:
             cv2.rectangle(frame, pt1=(int(min_x), int(min_y)), pt2=(int(max_x), int(max_y)), color=(100, 100, 255), thickness=3)
             # cv2.putText(frame, "Hand detected", (20, 100), cv2.FONT_HERSHEY_PLAIN, 2.5, (0, 255, 0), 2)
-
+        cTime = time.time()
+        fps = 1 / (cTime - pTime)
+        pTime = cTime
+        # cv2.putText(frame, f"FPS: {int(fps)}", (20, 50), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
+    
         cv2.imshow('HAND Detection', frame)
         cv2.waitKey(1)
 
         max_min = [0,0,0,0]
+        
+        
+        
+        
+        
+        
     if main.destroy_gui == True:
         cv2.destroyAllWindows()
 

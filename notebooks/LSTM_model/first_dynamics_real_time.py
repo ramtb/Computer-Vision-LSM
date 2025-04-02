@@ -9,10 +9,11 @@ from modules.positions.hand_positions import *
 from modules.loaders import ModelLoaderSigns
 #### Model #######
 
-loader = ModelLoaderSigns(model_name='first_dynamic_model.h5', scaler_name=None)
+loader = ModelLoaderSigns(model_name='dynamic_model_all.h5', scaler_name=None)
 model = loader.load_sign_model()
 
-dict_labels = {0: 'HOLA', 1:'TENGO', 2:'YO'}
+dict_labels = {0: 'Veintitres', 1:'Bueno', 2:'Hola', 3:'Mal', 4:'No', 5:'Tengo', 6: '¿Que tal?', 
+               7:'Si', 8:'Veinticuatro', 9: 'Yo soy'}
 predicted = False
 
 
