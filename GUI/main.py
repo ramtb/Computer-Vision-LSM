@@ -93,7 +93,7 @@ main.show()
 #########* CAMERA SETTINGS ###########
 
 
-camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
+camera = CameraHandler(camera_index=0, width_screen=1280, height_screen=720) ### 0 is the default camera, 1 is the external camera
 
 camera.set_resolution(camera.width_screen, camera.height_screen) ### Set the resolution of the window of the frame
 width, height = camera.get_resolution() ### Get the resolution of the camera

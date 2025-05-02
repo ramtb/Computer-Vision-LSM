@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-
 setup(
     name="modules",  # Nombre del paquete
     version="1.0",
