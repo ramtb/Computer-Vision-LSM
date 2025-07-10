@@ -1,10 +1,24 @@
 import os
 
 class RelativeDirToRoot:
+    ## Class to manage relative paths to a root directory.
     def __init__(self, root_dir: str = 'Computer-vision-LSM'):
+        """
+        Initialize the RelativeDirToRoot class with a root directory.
+        param root_dir: The root directory to which paths will be relative.
+        """
         self.root_dir = root_dir
 
     def _get_relative_position_to_root(self):
+        """        
+        Private method to get the relative position of the current working directory to the root directory.
+        This method is encapsulated and should only be used inside the child classes.
+        It raises a ValueError if the root directory is not found in the current working directory.
+        Returns:
+            int: The relative position of the root directory in the current working directory.
+        Raises:
+            ValueError: If the root directory is not found in the current working directory.
+        """
         working_directory = os.getcwd()
         working_dir_separated = working_directory.split(os.sep)  # Usa el separador adecuado para el sistema operativo
         try:

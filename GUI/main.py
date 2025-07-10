@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
+"""Created on Thu Oct 19 11:00:00 2023"""
+
+
+
 import sys
 import io
 import os
 
+# Import necessary libraries
 import cv2
 import pandas as pd
 import tensorflow as tf
@@ -10,6 +16,7 @@ import numpy as np
 import time 
 import mediapipe as mp
 
+# Import custom modules
 import modules.mod_main.basic_voice_system as bvs
 import modules.mod_main.start as st, modules.mod_main.tracking as tr, modules.mod_main.reset as res, modules.mod_main.show as sh
 from modules.loaders import ModelLoaderFace, ModelLoaderSigns, RelativeDirToRoot 
@@ -17,9 +24,11 @@ from modules.faces.face_positions import FaceMeshDetector
 from modules.config_camera import CameraHandler
 from modules.positions.hand_positions import HandDetector
 
+# Import GUI components
 from PySide6.QtWidgets import QApplication
 from gui_español import *
 
+# Set the encoding for standard output to UTF-8
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 ##### EMOJIS for the GUI #####
@@ -33,10 +42,13 @@ emotion_emojis = {
 
 
 ##########* LOAD THE MODEL OF STATICS SIGNS ################################
+# Load the static signs model and scaler
+# Ensure the model and scaler files are in the correct path
 loader = ModelLoaderSigns(model_name='all_statics_model2.h5', scaler_name='scaler.pkl')
 model = loader.load_sign_model()
 scaler = loader.load_sign_scaler()
-
+#* Dictionary for labels
+# Ensure the labels match the model's output
 dict_labels = {0: 'A', 1:'B', 2:'C', 3:'D', 4:'E', 5:'F', 6:'G', 7:'H', 8:'I', 9:'L', 10:'M', 11:'N', 12:'O', 13:'P', 14:'R', 15:'S', 16:'T', 17:'U', 18:'V', 19:'W', 20:'Y'}
 delay_time = 1.25
 predicted = False
@@ -46,7 +58,8 @@ n_letters = 0
 max_min = [0, 0, 0, 0]
 
 #########* LOAD THE MODEL of dynamic signs ################################
-
+# Load the dynamic signs model
+# Ensure the model file is in the correct path
 loader = ModelLoaderSigns(model_name='dynamic_model_all.h5', scaler_name=None)
 model_dinamics = loader.load_sign_model()
 
@@ -55,7 +68,8 @@ dict_labels_dinamics = {0: 'Veintitres', 1:'Bueno', 2:'Hola', 3:'Mal', 4:'No', 5
 predicted = False
 
 #### Variables ####
-
+# DataFrame to store dynamic sign data
+# Each row will contain the positions of the hand landmarks for each frame
 data_dinamics = pd.DataFrame(columns=['cx', 'cxROI', 'cy', 'cyROI'])
 df = {}
 n_frames = 30
@@ -63,11 +77,12 @@ waiting_tine = 1 ## waiting time to start the prediction
 start = time.time()
 start_clock = True
 contador_frames = 0
-temp_data = []  # Lista temporal para almacenar datos de cada frame
+temp_data = []  
 
 
 #######* LOAD THE MODEL of faces ################################
-
+# Load the face model and scaler
+# Ensure the model and scaler files are in the correct path
 loader_faces = ModelLoaderFace(model_name='face_model_GERARDO.h5', scaler_name='scaler_faces_GERARDO.pkl')
 model_faces = loader_faces.load_face_model()
 scaler_faces = loader_faces.load_face_scaler()
