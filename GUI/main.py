@@ -20,7 +20,7 @@ import mediapipe as mp
 import modules.mod_main.basic_voice_system as bvs
 import modules.mod_main.start as st, modules.mod_main.tracking as tr, modules.mod_main.reset as res, modules.mod_main.show as sh
 from modules.loaders import ModelLoaderFace, ModelLoaderSigns, RelativeDirToRoot 
-from modules.faces.face_positions import FaceMeshDetector
+from modules.positions.face_positions import FaceMeshDetector
 from modules.config_camera import CameraHandler
 from modules.positions.hand_positions import HandDetector
 
@@ -83,7 +83,7 @@ temp_data = []
 #######* LOAD THE MODEL of faces ################################
 # Load the face model and scaler
 # Ensure the model and scaler files are in the correct path
-loader_faces = ModelLoaderFace(model_name='face_model_GERARDO.h5', scaler_name='scaler_faces_GERARDO.pkl')
+loader_faces = ModelLoaderFace(model_name='face_model_v3.h5', scaler_name='scaler_faces_v3.pkl')
 model_faces = loader_faces.load_face_model()
 scaler_faces = loader_faces.load_face_scaler()
 dict_labels_faces = {0: 'FELIZ', 1: 'NEUTRAL', 2: 'SORPRESA', 3: 'TRISTE'}
