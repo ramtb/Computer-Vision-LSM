@@ -61,6 +61,11 @@ CMD ["python", "/GUI/main.py"]
 2. Improve TTS emotional intonation  
 3. Add support for regional LSM variations  
 
+## 📷 Screenshots
+
+![Inicio](public/project/pagina_inicio.jpg)
+![interfaz](public/project/interfaz.jpg)
+![glosario](public/project/glosario.jpg)
 
 ---  
 *"Breaking communication barriers with AI vision"* 👁️🗨️💬
