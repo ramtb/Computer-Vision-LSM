@@ -67,5 +67,19 @@ CMD ["python", "/GUI/main.py"]
 ![interfaz](public/project/interfaz.jpg)
 ![glosario](public/project/glosario.jpg)
 
+## 🙋‍♂️ Authors
+
+** José Eduardo Chairez Veloz **
+  📧 jechairez@ciencias.unam.mx
+
+** Angel Ramses Tellez Becerra **
+  📧 angelramses@ciencias.unam.mx
+
+** Diego Chairez Veloz **
+  📧 diego.chairezvel@gmail.com
+
+** Arturo Arroyo Núñez **
+  📧 arturo1421@ciencias.unam.mx
+
 ---  
 *"Breaking communication barriers with AI vision"* 👁️🗨️💬
