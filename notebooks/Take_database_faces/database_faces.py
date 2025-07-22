@@ -6,8 +6,8 @@ import joblib
 import numpy as np
 import time
 import h5py as h5
-from modules.config_camera import CameraHandler
-from modules.faces.face_positions import FaceMeshDetector, draw_regions
+from config_camera import CameraHandler
+from face_positions import FaceMeshDetector, draw_regions
 import os
 ##### Path to save the data ####
 datas = []

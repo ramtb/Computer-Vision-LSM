@@ -1,4 +1,4 @@
-import modules.mod_svf.start as st, modules.mod_svf.tracking as tr, modules.mod_svf.reset as res, modules.mod_svf.show as sh
+import mod_svf.start as st, mod_svf.tracking as tr, mod_svf.reset as res, mod_svf.show as sh
 import cv2
 import pandas as pd
 import tensorflow as tf
@@ -7,9 +7,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import time 
-import modules.mod_svf.basic_voice_system as bvs
-from modules.loaders import ModelLoaderSigns
-from modules.config_camera import CameraHandler
+import mod_svf.basic_voice_system as bvs
+from loaders import ModelLoaderSigns
+from config_camera import CameraHandler
 import mediapipe as mp
 
 ############################################################################################################*

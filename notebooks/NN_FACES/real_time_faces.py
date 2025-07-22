@@ -8,9 +8,9 @@ import joblib
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
-from modules.loaders import ModelLoaderFace
-from modules.faces.face_positions import FaceMeshDetector
-from modules.config_camera import CameraHandler
+from loaders import ModelLoaderFace
+from face_positions import FaceMeshDetector
+from config_camera import CameraHandler
 
 
 

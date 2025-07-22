@@ -4,8 +4,8 @@ import pandas as pd
 import joblib
 import numpy as np
 import time
-from modules.config_camera import CameraHandler
-from modules.positions.hand_positions import *
+from config_camera import CameraHandler
+from hand_positions import *
 import os
 
 sign = 'HOLA'

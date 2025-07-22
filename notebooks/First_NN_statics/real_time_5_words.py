@@ -1,10 +1,10 @@
-import modules.mod_NNs.start as st, modules.mod_NNs.tracking as tr, modules.mod_NNs.reset as res, modules.mod_NNs.show as sh
+import mod_NNs.start as st, mod_NNs.tracking as tr, mod_NNs.reset as res, mod_NNs.show as sh
 import cv2
 import mediapipe as mp
 from modules.loaders import *
 import numpy as np
 import time 
-from modules.config_camera import CameraHandler
+from config_camera import CameraHandler
 
 
 ############################################################################################################*

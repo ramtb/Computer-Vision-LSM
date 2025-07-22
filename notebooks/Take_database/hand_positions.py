@@ -91,7 +91,7 @@ class HandDetector:
 # Example usage
 if __name__ == "__main__":
     ##### Config camera ####
-    from modules.config_camera import CameraHandler
+    from config_camera import CameraHandler
     
     camera = CameraHandler(camera_index=1, width_screen=1280, height_screen=720)  # Default camera
     width, height = camera.get_resolution()  # Get the resolution of the camera

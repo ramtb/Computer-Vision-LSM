@@ -1,4 +1,4 @@
-import modules.mod_NNs.start as st, modules.mod_NNs.tracking as tr, modules.mod_NNs.reset as res, modules.mod_NNs.show as sh
+import mod_NNs.start as st, mod_NNs.tracking as tr, mod_NNs.reset as res, mod_NNs.show as sh
 import cv2
 import pandas as pd
 import tensorflow as tf
@@ -7,8 +7,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import time 
-from modules.loaders import ModelLoaderSigns
-from modules.config_camera import CameraHandler
+from loaders import ModelLoaderSigns
+from config_camera import CameraHandler
 import mediapipe as mp
 from modules import keet_database as kdb
 
@@ -91,5 +91,5 @@ while True:
         
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break   #press q for exit
-camera.release()
+cap.release()
 cv2.destroyAllWindows()
